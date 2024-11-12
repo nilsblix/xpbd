@@ -17,6 +17,17 @@ export class Vector2 {
         return new Vector2(this.x, this.y);
     }
 
+    /**
+     * Sets the current vector to this vector
+     * @param {Vector2} v 
+     * @returns {Vector2} returns this
+     */
+    set(v) {
+        this.x = v.x;
+        this.y = v.y;
+        return this;
+    }
+
     /** 
      * @param {Vector2} v
      * @returns {Vector2}
@@ -106,12 +117,34 @@ export class Vector2 {
         return Vector2.sub(a, b).magnitude();
     }
 
-     /**
-     * @param {Vector2} a 
-     * @param {Vector2} b 
-     */
-     static sqr_distance(a, b) {
+    /**
+    * @param {Vector2} a 
+    * @param {Vector2} b 
+    */
+    static sqr_distance(a, b) {
         return Vector2.sub(a, b).sqr_magnitude();
+    }
+
+    /**
+     * Rotates the current vector around the z-axis by "theta" radians.
+     * @param {number} theta 
+     */
+    rotateByAngle(theta) {
+        const x_prime = this.x * Math.cos(theta) - this.y * Math.sin(theta);
+        const y_prime = this.x * Math.sin(theta) + this.y * Math.cos(theta);
+        this.x = x_prime;
+        this.y = y_prime;
+    }
+
+    /**
+     * Rotates this vector around some arbitrary point with some angle theta radians
+     * @param {number} theta 
+     * @param {Vector2} point 
+     */
+    rotateAroundPoint(theta, point = Vector2.zero) {
+        this.sub(point);
+        this.rotateByAngle(theta);
+        this.add(point);
     }
 
     /**

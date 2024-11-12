@@ -1,8 +1,10 @@
-import {Vector2} from "./math.js";
+import {Vector2} from "./_math.js";
 
 export class Units {
     static WIDTH = 10;
     static HEIGHT;
+
+    static DIMS = new Vector2(undefined, undefined);
 
     static mult_c2s;
     static mult_s2c;
@@ -21,6 +23,8 @@ export class Units {
         this.RATIO = canvas.width / canvas.height;
         this.HEIGHT = this.WIDTH / this.RATIO;
 
+        this.DIMS = new Vector2(this.WIDTH, this.HEIGHT);
+
         this.mult_c2s = this.WIDTH / canvas.WIDTH;
         this.mult_s2c = canvas.width / this.WIDTH;
 
@@ -28,6 +32,7 @@ export class Units {
         this.canvas.height = canvas.height;
 
         this.NUM_LINES.y = this.NUM_LINES.x / this.RATIO;
+
     }
 
     /**
@@ -51,7 +56,7 @@ export class Units {
      * @returns {Vector2}
      */
     static c2s(pos) {
-        return new Vec2(this.c2s_x(pos), this.c2s_y(pos));
+        return new Vector2(this.c2s_x(pos), this.c2s_y(pos));
     }
 
     /**
@@ -75,7 +80,7 @@ export class Units {
      * @returns {Vector2}
      */
     static s2c(pos) {
-        return new Vec2(this.s2c_x(pos), this.s2c_y(pos));
+        return new Vector2(this.s2c_x(pos), this.s2c_y(pos));
     }
 
     /**
@@ -103,7 +108,7 @@ export class Units {
      * @returns {Vector2}
      */
     static snap_to_grid(pos) {
-        return new Vec2(this.snap_to_grid_x(pos), this.snap_to_grid_y(pos));
+        return new Vector2(this.snap_to_grid_x(pos), this.snap_to_grid_y(pos));
     }
 
     /**
