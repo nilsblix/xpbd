@@ -1,38 +1,39 @@
-import {Vector2} from "./_math.js";
+import { Vector2 } from "./math.js";
 
 export class Units {
     static WIDTH = 10;
-    static HEIGHT;
+    static RATIO = 16 / 9;
+    static HEIGHT = this.WIDTH / this.RATIO;
 
     static DIMS = new Vector2(undefined, undefined);
 
     static mult_c2s;
     static mult_s2c;
 
-    static canvas = {width: 0, height: 0};
+    static canvas = { width: 0, height: 0 };
 
-    static NUM_LINES = {x: 20, y: undefined};
+    static NUM_LINES = { x: 20, y: 20 / this.RATIO };
 
     /**
-     * @param {HTMLCanvasElement} canvas 
-     */
+    * @param {HTMLCanvasElement} canvas 
+    */
     static init(canvas) {
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
-
-        this.RATIO = canvas.width / canvas.height;
-        this.HEIGHT = this.WIDTH / this.RATIO;
-
-        this.DIMS = new Vector2(this.WIDTH, this.HEIGHT);
-
-        this.mult_c2s = this.WIDTH / canvas.WIDTH;
-        this.mult_s2c = canvas.width / this.WIDTH;
+        const window_ratio = window.innerWidth / window.innerHeight;
+        if (window_ratio > this.RATIO) {
+            canvas.height = 0.99 * window.innerHeight;
+            canvas.width = canvas.height * this.RATIO;
+        } else {
+            canvas.width = 0.99 * window.innerWidth;
+            canvas.height = canvas.width / this.RATIO;
+        }
 
         this.canvas.width = canvas.width;
         this.canvas.height = canvas.height;
 
-        this.NUM_LINES.y = this.NUM_LINES.x / this.RATIO;
+        this.mult_c2s = this.WIDTH / canvas.width;
+        this.mult_s2c = canvas.width / this.WIDTH;
 
+        this.DIMS.set(new Vector2(this.WIDTH, this.HEIGHT));
     }
 
     /**

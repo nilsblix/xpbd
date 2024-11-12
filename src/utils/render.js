@@ -1,5 +1,5 @@
-import { Vector2 } from "./_math.js";
-import { Units } from "./_units.js";
+import { Vector2 } from "./math.js";
+import { Units } from "./units.js";
 
 export class Render {
     static c;
