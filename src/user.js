@@ -25,13 +25,13 @@ export class User {
 
             document.addEventListener("keydown", (e) => {
                 if (e.key == k.key && k.onkeydown_cond)
-                    onkeydown_do();
+                    k.onkeydown_do();
             });
 
             if (!k.onkeyup_do) continue;
             document.addEventListener("keyup", (e) => {
                 if (e.key == k.key && k.onkeyup_cond)
-                    onkeyup_do();
+                    k.onkeyup_do();
             });
         }
 

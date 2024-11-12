@@ -6,7 +6,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>xpbd</title>
+    <link rel="stylesheet" href="./src/dear-imgui/style.css">
     <style>
+        @font-face {
+            font-family: "basis33";
+            src: url("./assets/basis33.ttf") format("truetype");
+        }
+
+        @font-face {
+            font-family: "QuinqueFive";
+            src: url("./assets/QuinqueFive.ttf") format("truetype");
+        }
+
         body {
             background-color: rgb(36, 36, 47);
             overflow: hidden;
@@ -20,12 +31,57 @@
             border: 1px solid white;
             /* width: 99vw;
             height: 99vh; */
-            
         }
+
+        #paused {
+            position: absolute;
+            display: block;
+
+            right: 20px;
+            top: 20px;
+
+            font-family: basis33;
+            color: white;
+            font-size: 4rem;
+
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
     <canvas id="engine"></canvas>
+
+    <div id="paused">*paused</div>
+    <script>document.getElementById("paused").style.display = "block";</script>
+
+    <div id="profiling-window" class="gui-window" style="width: 300px">
+        <div id="profiling-header" class="gui-header">
+            &nbsp;// PROFILING
+            <span id="profiling-close-button" class="gui-header-close-button">x</span>
+        </div>
+
+        <div class="gui-label">
+            <p> DT = <span id="profiling-dt">-1</span> ms</p>
+            <p> PDT = <span id="profiling-pdt">-1</span> ms</p>
+            <p> RDT = <span id="profiling-rdt">-1</span> ms</p>
+        </div>
+
+    </div>
+
+    <div id="info-window" class="gui-window" style="width: 300px">
+        <div id="info-header" class="gui-header">
+            &nbsp;// INFO
+            <span id="info-close-button" class="gui-header-close-button">x</span>
+        </div>
+
+        <div class="gui-label">
+            <p> FR = <span id="info-framerate">-1</span> Hz</p>
+            <p> SR = <span id="info-simrate">-1</span> Hz</p>
+        </div>
+
+    </div>
+
     <script src="./src/main.js" type="module"></script>
 </body>
 </html>
