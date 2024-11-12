@@ -128,23 +128,27 @@ export class Vector2 {
     /**
      * Rotates the current vector around the z-axis by "theta" radians.
      * @param {number} theta 
+     * @returns {Vector2} this
      */
     rotateByAngle(theta) {
         const x_prime = this.x * Math.cos(theta) - this.y * Math.sin(theta);
         const y_prime = this.x * Math.sin(theta) + this.y * Math.cos(theta);
         this.x = x_prime;
         this.y = y_prime;
+        return this;
     }
 
     /**
      * Rotates this vector around some arbitrary point with some angle theta radians
      * @param {number} theta 
      * @param {Vector2} point 
+     * @returns {Vector2} this
      */
     rotateAroundPoint(theta, point = Vector2.zero) {
         this.sub(point);
         this.rotateByAngle(theta);
         this.add(point);
+        return this;
     }
 
     /**
