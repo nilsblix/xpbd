@@ -24,7 +24,7 @@ export class Gravity {
     getWorkStored(bodies) {
         let E = 0;
         for (let i = 0; i < bodies.length; i++) {
-            E += bodies[i].y * bodies[i].mass * this.gravity;
+            E += bodies[i].pos.y * bodies[i].mass * Gravity.gravity;
         }
         return E;
     }
@@ -37,7 +37,7 @@ export class Gravity {
 
 export class LinearDamping {
     constructor() {
-        this.MU = 3e-1;
+        this.MU = 0;
     }
 
     apply(bodies) {

@@ -1,4 +1,3 @@
-import { body_helper } from "../bodies.js";
 import { Vector2 } from "./math.js";
 import { Units } from "./units.js";
 

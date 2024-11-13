@@ -4,9 +4,8 @@ import { Units } from "./utils/units.js";
 import { Vector2 } from "./utils/math.js";
 
 import { PhysicsSystem } from "./physics_system.js";
-import { DiscBody, RectBody } from "./bodies.js";
+import { RigidBody } from "./rigid_body.js";
 import { OffsetLinkConstraint, FixedYConstraint } from "./constraints.js";
-import { body_helper } from "./bodies.js";
 
 /**
  * Setups up a scene. Make sure prev-scene is the nothing scene.
@@ -14,56 +13,40 @@ import { body_helper } from "./bodies.js";
  * @returns {void}
  */
 export function setupScene(ver, psystem) {
-    switch(ver) {
-        case "test":
+    switch (ver) {
+        case "test 1":
+            // 3 1 2 4
+            const body1 = new RigidBody(new Vector2(5, 4), 5, {type: "rect", width: 1.7, height: 1.2});
+            const body2 = new RigidBody(new Vector2(7, 4), 1, {type: "rect", width: 2, height: 0.4});
+            const body3 = new RigidBody(new Vector2(3, 4), 1, {type: "rect", width: 2, height: 0.4});
+            const body4 = new RigidBody(new Vector2(8.5, 4), 3, {type: "disc", radius: 0.5});
 
-            const rad = 0.5;
+            psystem.bodies.push(body1);
+            psystem.bodies.push(body2);
+            psystem.bodies.push(body3);
+            psystem.bodies.push(body4);
 
-            const b0 = new DiscBody(new Vector2(4, 4), rad, 1);
-            const b1 = new DiscBody(new Vector2(6, 4), rad, 1);
-            const b2 = new DiscBody(new Vector2(8, 4), rad, 1);
+            const left_r = new Vector2(0.75, 0);
+            const right_r = new Vector2(-0.75, 0);
 
-            const b3 = new RectBody(new Vector2(2, 4), 1, 2, 1);
+            const circle_r = new Vector2(-0.25, 0);
+            const circle_fixed_r = new Vector2(0.4, 0);
 
-            // b0.omega = -5;
-            // b2.omega = 5;
+            const fixed_1 = new FixedYConstraint(0, 2, right_r, body3.pos.y + right_r.y);
+            const fixed_2 = new FixedYConstraint(0, 3, circle_fixed_r, body4.pos.y + circle_fixed_r.y);
 
-            psystem.bodies.push(b0);
-            psystem.bodies.push(b1);
-            psystem.bodies.push(b2);
-            psystem.bodies.push(b3);
+            const link_1 = new OffsetLinkConstraint(0, 2, 0, left_r, right_r, Vector2.distance(body3.localToWorld(left_r), body1.localToWorld(right_r)));
+            const link_2 = new OffsetLinkConstraint(0, 0, 1, left_r, right_r, Vector2.distance(body1.localToWorld(left_r), body2.localToWorld(right_r)));
+            const link_3 = new OffsetLinkConstraint(0, 1, 3, left_r, circle_r, Vector2.distance(body2.localToWorld(left_r), body4.localToWorld(circle_r)));
 
-            const r0 = new Vector2(0.2, 0.2);
-            const r1 = new Vector2(-0.2, 0.2);
+            psystem.constraints.push(fixed_1);
+            // psystem.constraints.push(fixed_2);
+            
+            psystem.constraints.push(link_1);
+            psystem.constraints.push(link_2);
+            psystem.constraints.push(link_3);
 
-            const r2 = new Vector2(0.2, 0.2);
-            const r3 = new Vector2(-0.2, -0.2);
-
-            const r4 = new Vector2(0.5, 0);
-            const r5 = new Vector2(-0.2, -0.2);
-
-            const a0 = body_helper.localToWorld(b0, r0);
-            const a1 = body_helper.localToWorld(b1, r1);
-
-            const a2 = body_helper.localToWorld(b1, r2);
-            const a3 = body_helper.localToWorld(b2, r3);
-
-            const a4 = body_helper.localToWorld(b3, r4);
-            const a5 = body_helper.localToWorld(b0, r5);
-
-            const c_fixed_y = new FixedYConstraint(PhysicsSystem.EPS, 0, new Vector2(-0.1, 0.1), b0.pos.y + 0.1);
-
-            const c0 = new OffsetLinkConstraint(PhysicsSystem.EPS, 0, 1, r0, r1, Vector2.distance(a0, a1));
-            const c1 = new OffsetLinkConstraint(PhysicsSystem.EPS, 1, 2, r2, r3, Vector2.distance(a2, a3));
-            const c2 = new OffsetLinkConstraint(PhysicsSystem.EPS, 0, 3, r5, r4, Vector2.distance(a4, a5));
-
-            psystem.constraints.push(c0);
-            psystem.constraints.push(c1);
-            psystem.constraints.push(c2);
-            psystem.constraints.push(c_fixed_y);
 
             break;
-
     }
-
 }

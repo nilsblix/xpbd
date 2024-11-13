@@ -14,6 +14,8 @@ export class PhysicsSystem {
     static rdt = -1;
     static sub_steps = 20;
 
+    static energy = 0;
+
     static simulating = false;
 
     constructor() {
@@ -22,7 +24,7 @@ export class PhysicsSystem {
         this.constraints = [];
 
         this.force_generators.push(new Gravity());
-        this.force_generators.push(new LinearDamping());
+
     }
 
     process() {
@@ -59,11 +61,11 @@ export class PhysicsSystem {
             }
 
             // collide with floor:
-            // for (let i = 0; i < this.bodies.length; i++) {
-            //     const b = this.bodies[i];
-            //     if (b.pos.y < b.radius)
-            //         b.pos.y = b.radius
-            // }
+            for (let i = 0; i < this.bodies.length; i++) {
+                const b = this.bodies[i];
+                if (b.pos.y < b.radius)
+                    b.pos.y = b.radius
+            }
 
             // solve constraints
             for (let i = 0; i < this.constraints.length; i++) {
@@ -87,9 +89,24 @@ export class PhysicsSystem {
             this.bodies[i].render();
         }
 
+
         for (let i = 0; i < this.constraints.length; i++) {
             this.constraints[i].render(this.bodies);
         }
+    }
+
+    getSystemEnergy() {
+        let E = 0;
+        for (let i = 0; i < this.force_generators.length; i++) {
+            E += this.force_generators[i].getWorkStored(this.bodies);
+        }
+
+        for (let i = 0; i < this.bodies.length; i++) {
+            E += this.bodies[i].getKineticEnergy();
+        }
+
+        return E;
+
     }
 
 }

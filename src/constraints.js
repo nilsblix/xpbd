@@ -3,7 +3,6 @@ import { Colors, LineWidths } from "./settings/render_settings.js";
 import { Units } from "./utils/units.js";
 import { Vector2 } from "./utils/math.js";
 import { PhysicsSystem } from "./physics_system.js";
-import { body_helper } from "./bodies.js";
 
 /*
     All constraints must have these methods:
@@ -49,26 +48,43 @@ export class OffsetLinkConstraint {
         const b1 = bodies[this.id1];
         const b2 = bodies[this.id2];
 
-        const world_1 = body_helper.localToWorld(b1, this.r1);
-        const world_2 = body_helper.localToWorld(b2, this.r2);
-        const dist = Vector2.distance(world_1, world_2);
+        const world_1 = b1.localToWorld(this.r1);
+        const world_2 = b2.localToWorld(this.r2);
 
-        const C = dist - this.l0;
-        this.n = Vector2.scale(1 / dist, Vector2.sub(world_2, world_1));
+        const dist2 = Vector2.sqr_distance(world_1, world_2);
+        const C = dist2 - this.l0 ** 2;
+        this.n = Vector2.scale(1 / Math.sqrt(dist2), Vector2.sub(world_2, world_1));
 
-        const cross_1 = Vector2.cross(this.r1, this.n);
-        const cross_2 = Vector2.cross(this.r2, this.n);
+        const delta_a = Vector2.sub(world_2, world_1);
 
-        const w_1 = 1 / b1.mass + (cross_1 ** 2) / b1.I;
-        const w_2 = 1 / b2.mass + (cross_2 ** 2) / b2.I;
+        const sin_1 = Math.sin(b1.theta);
+        const cos_1 = Math.cos(b1.theta);
+        const sin_2 = Math.sin(b2.theta);
+        const cos_2 = Math.cos(b2.theta);
+
+        const dC_dx1 = -2 * delta_a.x;
+        const dC_dy1 = -2 * delta_a.y;
+        const dC_dtheta1 = 2 * ( ( this.r1.x * sin_1 + this.r1.y * cos_1) * delta_a.x
+                               + (-this.r1.x * cos_1 + this.r1.y * sin_1) * delta_a.y);
+
+        const dC_dx2 = 2 * delta_a.x;
+        const dC_dy2 = 2 * delta_a.y;
+        const dC_dtheta2 = 2 * ( (-this.r2.x * sin_2 - this.r2.y * cos_2) * delta_a.x
+                               + ( this.r2.x * cos_2 - this.r2.y * sin_2) * delta_a.y);
+
+        const w_1 = (dC_dx1 * dC_dx1 + dC_dy1 * dC_dy1) / b1.mass + (dC_dtheta1 * dC_dtheta1) / b1.I;
+        const w_2 = (dC_dx2 * dC_dx2 + dC_dy2 * dC_dy2) / b2.mass + (dC_dtheta2 * dC_dtheta2) / b2.I;
 
         this.lambda = -C / (w_1 + w_2 + k);
 
-        b1.pos = Vector2.sub(b1.pos, Vector2.scale(w_1 * this.lambda, this.n));
-        b2.pos = Vector2.add(b2.pos, Vector2.scale(w_2 * this.lambda, this.n));
+        const delta_p1 = Vector2.scale(this.lambda / b1.mass, new Vector2(dC_dx1, dC_dy1));
+        const delta_p2 = Vector2.scale(this.lambda / b2.mass, new Vector2(dC_dx2, dC_dy2));
 
-        b1.theta -= this.lambda * cross_1 / b1.I;
-        b2.theta += this.lambda * cross_2 / b2.I;
+        b1.pos = Vector2.add(b1.pos, delta_p1);
+        b2.pos = Vector2.add(b2.pos, delta_p2);
+        
+        b1.theta += this.lambda * dC_dtheta1 / b1.I;
+        b2.theta += this.lambda * dC_dtheta2 / b2.I;
 
     }
 
@@ -85,8 +101,8 @@ export class OffsetLinkConstraint {
         const b1 = bodies[this.id1];
         const b2 = bodies[this.id2];
 
-        const a1 = body_helper.localToWorld(b1, this.r1);
-        const a2 = body_helper.localToWorld(b2, this.r2);
+        const a1 = b1.localToWorld(this.r1);
+        const a2 = b2.localToWorld(this.r2);
 
         Render.c.lineCap = "round";
 
@@ -121,37 +137,26 @@ export class FixedYConstraint {
         this.y0 = y0;
 
         this.lambda = null;
-        this.n = null;
+        this.n = new Vector2(0, 1);
     }
 
     solve(bodies) {
-        // world = pos.y + rx sin theta + ry cos theta
-        // C = pos.y + rx sin theta + ry cos theta - y0
-
-        // dC dx = 0
-        // dC dy = 1
-        // ==> Vector2.up
-        // dC dtheta = rx cos theta - ry sin theta
-
         const sub_dt = PhysicsSystem.dt / PhysicsSystem.sub_steps;
         const k = this.alpha / (sub_dt * sub_dt)
 
         const b = bodies[this.id];
 
-        const world_r = b.pos.y + this.r.x * Math.sin(b.theta) + this.r.y * Math.cos(b.theta);
+        const world_y = b.pos.y + this.r.x * Math.sin(b.theta) + this.r.y * Math.cos(b.theta);
 
-        const C = world_r - this.y0;
-        this.n = Vector2.up;
-
+        const C = world_y - this.y0;
         const dC_dtheta = this.r.x * Math.cos(b.theta) - this.r.y * Math.sin(b.theta);
 
-        const w = 1 / b.mass + dC_dtheta * dC_dtheta / b.I;
+        const w = (1 / b.mass) + dC_dtheta * dC_dtheta / b.I;
 
         this.lambda = - C / (w + k);
 
-        b.pos = Vector2.add(b.pos, Vector2.scale(w * this.lambda, this.n));
+        b.pos = Vector2.add(b.pos, Vector2.scale(this.lambda / b.mass, this.n));
         b.theta += this.lambda * dC_dtheta / b.I;
-
     }
 
     getConstraintForce() {
@@ -162,11 +167,55 @@ export class FixedYConstraint {
     render(bodies) {
         const b = bodies[this.id];
 
+        const applied = b.localToWorld(this.r);
         const rad = LineWidths.fixed_y_constraint_rad;
-        const world = body_helper.localToWorld(b, this.r);
 
         Render.c.fillStyle = Colors.fixed_y_constraint;
-        Render.arc(world, rad, false, true);
+        Render.c.strokeStyle = Colors.outlines;
+        Render.c.lineWidth = LineWidths.fixed_constraints_outlines * Units.mult_s2c;
+
+        Render.rect(Vector2.sub(applied, new Vector2(rad, 2 * rad)), new Vector2(2 * rad, 2 * rad), true, true);
+        Render.arc(applied, rad, true, true);
+        Render.c.fillStyle = Colors.outlines;
+        Render.arc(applied, rad / 4, true, true);
+
+        // 1 2 middle 3 4
+        const horizontal_middle = Vector2.add(applied, new Vector2(0.0, -2 * rad));
+        const horizontal_1 = Vector2.add(horizontal_middle, new Vector2(- 4 * rad, 0.0));
+        const horizontal_2 = Vector2.add(horizontal_middle, new Vector2(- 2 * rad, 0.0));
+        const horizontal_3 = Vector2.add(horizontal_middle, new Vector2(  2 * rad, 0.0));
+        const horizontal_4 = Vector2.add(horizontal_middle, new Vector2(  4 * rad, 0.0));
+
+        Render.c.lineCap = "round";
+        Render.c.strokeStyle = Colors.outlines;
+        Render.c.lineWidth = (LineWidths.fixed_constraints_lines + 2 * LineWidths.fixed_constraints_outlines) * Units.mult_s2c;
+        Render.line(horizontal_1, horizontal_4);
+
+        Render.c.strokeStyle = Colors.fixed_y_constraint;
+        Render.c.lineWidth = LineWidths.fixed_constraints_lines * Units.mult_s2c;
+        Render.line(horizontal_1, horizontal_4);
+
+        // START OF REAL FIXED Y. What came before was essentially fixed pos constraint
+
+        const fix = (LineWidths.fixed_constraints_lines);
+
+        const small_rad = rad / 1.5;
+        const ball_1 = Vector2.add(horizontal_1, new Vector2(  small_rad, -small_rad - fix));
+        const ball_2 = Vector2.add(horizontal_2, new Vector2(  0.5 * small_rad, -small_rad - fix));
+        const ball_3 = Vector2.add(horizontal_middle, new Vector2(0.0, -small_rad - fix));
+        const ball_4 = Vector2.add(horizontal_3, new Vector2(-  0.5 * small_rad, -small_rad - fix));
+        const ball_5 = Vector2.add(horizontal_4, new Vector2(-  small_rad, -small_rad - fix));
+
+        Render.c.strokeStyle = Colors.outlines;
+        Render.c.fillStyle = Colors.fixed_y_constraint;
+        Render.c.lineWidth = LineWidths.fixed_constraints_outlines * Units.mult_s2c;
+
+        Render.arc(ball_1, small_rad, true, true);
+        Render.arc(ball_2, small_rad, true, true);
+        Render.arc(ball_3, small_rad, true, true);
+        Render.arc(ball_4, small_rad, true, true);
+        Render.arc(ball_5, small_rad, true, true);
+
     }
 
 }

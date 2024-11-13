@@ -3,7 +3,6 @@ import { Vector2 } from "./utils/math.js";
 import { Render } from "./utils/render.js";
 import { ScopedTimer, FPSCalculator } from "./utils/scoper_timer.js";
 
-import { DiscBody } from "./bodies.js";
 import { PhysicsSystem } from "./physics_system.js";
 
 import { User } from "./user.js";
@@ -11,7 +10,9 @@ import { updateGUI } from "./dear-imgui/gui_helper.js";
 
 import { setupScene } from "./demo_scenes.js";
 
-const SUB_STEPS = 20;
+const SUB_STEPS = 10;
+
+PhysicsSystem.sub_steps = SUB_STEPS;
 
 var psystem;
 const physics_timer = new ScopedTimer(true, 5);
@@ -27,12 +28,21 @@ export function update(canvas) {
 
     Units.init(canvas);
 
+    updateGUI();
     fps_calculator.update();
+
+    if (!document.hasFocus()) {
+        PhysicsSystem.simulating = false;
+        const paused = document.getElementById("paused");
+        paused.style.display = "block";
+    }
+
     PhysicsSystem.dt = fps_calculator.dt;
 
-    updateGUI();
     physics_timer.measure(() => psystem.process());
     PhysicsSystem.pdt = physics_timer.dt;
+
+    PhysicsSystem.energy = psystem.getSystemEnergy();
 
     render_timer.measure(() => {
         Render.c.clearRect(0, 0, canvas.width, canvas.height);
@@ -48,7 +58,8 @@ function handleEventsOnInput() {
     User.handleKeyboardInputs([
         {
             key: " ",
-            onkeydown_do: () => {
+            onkeydown_do: (e) => {
+                e.preventDefault();
                 PhysicsSystem.simulating = !PhysicsSystem.simulating;
 
                 const paused = document.getElementById("paused");
@@ -75,11 +86,11 @@ function handleEventsOnInput() {
                 PhysicsSystem.sub_steps = SUB_STEPS;
                 PhysicsSystem.dt = fps_calculator.dt;
             },
-            onkeyup_cond: false,
+            onkeyup_cond: true,
         },
         {
             key: "R",
-            onkeydown_do: () => {
+            onkeydown_do: (e) => {
                 PhysicsSystem.simulating = false;
                 psystem = new PhysicsSystem();
                 const paused = document.getElementById("paused");
@@ -97,7 +108,7 @@ function handleEventsOnInput() {
                 const paused = document.getElementById("paused");
                 paused.style.display = "block";
 
-                setupScene("test", psystem);
+                setupScene("test 1", psystem);
             },
             onkeydown_cond: true,
             onkeyup_do: null,

@@ -99,10 +99,11 @@ function updateDisplayedDebugs() {
     document.getElementById("profiling-dt").innerHTML = (PhysicsSystem.dt * 1E3).toFixed(3);
     document.getElementById("profiling-pdt").innerHTML = (PhysicsSystem.pdt * 1E3).toFixed(3);
     document.getElementById("profiling-rdt").innerHTML = (PhysicsSystem.rdt * 1E3).toFixed(3);
+    document.getElementById("profiling-energy").innerHTML = (PhysicsSystem.energy).toFixed(3);
 
     // info
-    document.getElementById("info-framerate").innerHTML = (1 / PhysicsSystem.dt).toFixed(3);
-    document.getElementById("info-simrate").innerHTML = (PhysicsSystem.sub_steps * 1 / PhysicsSystem.dt).toFixed(3);
+    document.getElementById("info-framerate").innerHTML = (1 / PhysicsSystem.dt).toFixed(0);
+    document.getElementById("info-simrate").innerHTML = (PhysicsSystem.sub_steps * 1 / PhysicsSystem.dt).toFixed(0);
 
 }
 
