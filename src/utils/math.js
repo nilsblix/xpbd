@@ -139,6 +139,18 @@ export class Vector2 {
     }
 
     /**
+     * Returns the vector v rotated theta radians around (0,0)
+     * @param {Vector2} v 
+     * @param {number} theta 
+     * @returns {Vector2}
+     */
+    static rotateByAngle(v, theta) {
+        const x_prime = v.x * Math.cos(theta) - v.y * Math.sin(theta);
+        const y_prime = v.x * Math.sin(theta) + v.y * Math.cos(theta);
+        return new Vector2(x_prime, y_prime);
+    }
+
+    /**
      * Rotates this vector around some arbitrary point with some angle theta radians
      * @param {number} theta 
      * @param {Vector2} point 
@@ -149,6 +161,20 @@ export class Vector2 {
         this.rotateByAngle(theta);
         this.add(point);
         return this;
+    }
+
+    /**
+     * Returns the vector v rotated theta radians around point
+     * @param {Vector2} v 
+     * @param {number} theta 
+     * @param {Vector2} point 
+     * @returns {Vector2}
+     */
+    static rotateAroundPoint(v, theta, point) {
+        const a = v.clone().sub(point);
+        a.rotateByAngle(theta);
+        a.add(point);
+        return a;
     }
 
     /**
@@ -175,6 +201,16 @@ export class Vector2 {
     normalize() {
         const dist = this.magnitude();
         return this.scale(1 / dist);
+    }
+
+    /**
+     * The 2d cross product between two vectors
+     * @param {Vector2} a 
+     * @param {Vector2} b 
+     * @returns {number}
+     */
+    static cross(a, b) {
+        return a.x * b.y - a.y * b.x;
     }
 
     /**

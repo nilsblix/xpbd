@@ -9,6 +9,8 @@ import { PhysicsSystem } from "./physics_system.js";
 import { User } from "./user.js";
 import { updateGUI } from "./dear-imgui/gui_helper.js";
 
+import { setupScene } from "./demo_scenes.js";
+
 var psystem;
 const physics_timer = new ScopedTimer(true, 5);
 const render_timer = new ScopedTimer(true, 5);
@@ -16,8 +18,6 @@ const fps_calculator = new FPSCalculator();
 
 export function start() {
     psystem = new PhysicsSystem();
-    const body = new DiscBody(new Vector2(5, 5), 1, 1);
-    psystem.bodies.push(body);
     handleEventsOnInput();
 }
 
@@ -63,11 +63,24 @@ function handleEventsOnInput() {
         {
             key: "R",
             onkeydown_do: () => {
+                PhysicsSystem.simulating = false;
                 psystem = new PhysicsSystem();
                 const paused = document.getElementById("paused");
                 paused.style.display = "block";
-                const body = new DiscBody(new Vector2(5, 5), 1, 1);
-                psystem.bodies.push(body);
+            },
+            onkeydown_cond: true,
+            onkeyup_do: null,
+            onkeyup_cond: false,
+        },
+        {
+            key: "1",
+            onkeydown_do: () => {
+                PhysicsSystem.simulating = false;
+                psystem = new PhysicsSystem();
+                const paused = document.getElementById("paused");
+                paused.style.display = "block";
+
+                setupScene("test", psystem);
             },
             onkeydown_cond: true,
             onkeyup_do: null,
