@@ -3,14 +3,16 @@ import { Colors, LineWidths } from "./settings/render_settings.js";
 import { Units } from "./utils/units.js";
 import { Vector2 } from "./utils/math.js";
 
-import { Gravity } from "./force_generators.js";
+import {Gravity, LinearDamping} from "./force_generators.js";
 
 export class PhysicsSystem {
+
+    static EPS = 1E-8;
 
     static dt = 1 / 120;
     static pdt = -1;
     static rdt = -1;
-    static sub_steps = 5;
+    static sub_steps = 20;
 
     static simulating = false;
 
@@ -20,6 +22,7 @@ export class PhysicsSystem {
         this.constraints = [];
 
         this.force_generators.push(new Gravity());
+        this.force_generators.push(new LinearDamping());
     }
 
     process() {
@@ -54,6 +57,13 @@ export class PhysicsSystem {
                 a.theta += a.omega * sub_dt;
                 a.tau = 0;
             }
+
+            // collide with floor:
+            // for (let i = 0; i < this.bodies.length; i++) {
+            //     const b = this.bodies[i];
+            //     if (b.pos.y < b.radius)
+            //         b.pos.y = b.radius
+            // }
 
             // solve constraints
             for (let i = 0; i < this.constraints.length; i++) {

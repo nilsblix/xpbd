@@ -11,6 +11,8 @@ import { updateGUI } from "./dear-imgui/gui_helper.js";
 
 import { setupScene } from "./demo_scenes.js";
 
+const SUB_STEPS = 20;
+
 var psystem;
 const physics_timer = new ScopedTimer(true, 5);
 const render_timer = new ScopedTimer(true, 5);
@@ -58,6 +60,21 @@ function handleEventsOnInput() {
             },
             onkeydown_cond: true,
             onkeyup_do: null,
+            onkeyup_cond: false,
+        },
+        {
+            key: "ArrowUp",
+            onkeydown_do: (e) => {
+                e.preventDefault();
+                PhysicsSystem.sub_steps = 1;
+                PhysicsSystem.dt = fps_calculator.dt / SUB_STEPS;
+            },
+            onkeydown_cond: true,
+            onkeyup_do: (e) => {
+                e.preventDefault();
+                PhysicsSystem.sub_steps = SUB_STEPS;
+                PhysicsSystem.dt = fps_calculator.dt;
+            },
             onkeyup_cond: false,
         },
         {

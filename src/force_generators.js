@@ -22,7 +22,33 @@ export class Gravity {
     }
 
     getWorkStored(bodies) {
+        let E = 0;
+        for (let i = 0; i < bodies.length; i++) {
+            E += bodies[i].y * bodies[i].mass * this.gravity;
+        }
+        return E;
+    }
 
+    render(bodies) {
+
+    }
+
+}
+
+export class LinearDamping {
+    constructor() {
+        this.MU = 3e-1;
+    }
+
+    apply(bodies) {
+        for (let i = 0; i < bodies.length; i++) {
+            bodies[i].force = Vector2.sub(bodies[i].force, Vector2.scale(this.MU, bodies[i].vel));
+            bodies[i].tau -= bodies[i].omega * 0.1 * this.MU;
+        }
+    }
+
+    getWorkStored(bodies) {
+        return 0;
     }
 
     render(bodies) {

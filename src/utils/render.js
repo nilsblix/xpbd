@@ -1,3 +1,4 @@
+import { body_helper } from "../bodies.js";
 import { Vector2 } from "./math.js";
 import { Units } from "./units.js";
 
@@ -69,6 +70,32 @@ export class Render {
         this.c.closePath();
     }
 
+    /**
+     * Draws a polygon
+     * @param {[Vector2]} vertices SIM-SPACE
+     * @param {boolean} stroke 
+     * @param {boolean} fill 
+     */
+    static polygon(vertices, stroke = true, fill = true) {
+        this.c.beginPath();
+
+        const canv_vert = [];
+        for (let i = 0; i < vertices.length; i++) {
+            canv_vert.push(Units.s2c(vertices[i]));
+        }
+
+        this.c.moveTo(canv_vert[0].x, canv_vert[0].y)
+        for (let i = 1; i < canv_vert.length; i++) {
+            this.c.lineTo(canv_vert[i].x, canv_vert[i].y)
+        }
+        this.c.lineTo(canv_vert[0].x, canv_vert[0].y);
+        if (fill)
+            this.c.fill();
+        if (stroke)
+            this.c.stroke();
+        this.c.closePath();
+    }
+
     static renderBackground() {
 
         Render.c.fillStyle = Render.background.background;
@@ -106,6 +133,54 @@ export class Render {
             Render.line(new Vector2(0, y), new Vector2(Units.WIDTH, y));
         }
     
+    }
+
+    static HSV_RGB(h, s, v) {
+        let r, g, b;
+
+        // Normalize hue to be between 0 and 360 degrees
+        h = h % 360;
+
+        // Normalize saturation and value to be between 0 and 1
+        s = s / 100;
+        v = v / 100;
+
+        let c = v * s; // Chroma
+        let x = c * (1 - Math.abs((h / 60) % 2 - 1)); // Second largest component
+        let m = v - c;
+
+        if (0 <= h && h < 60) {
+            r = c;
+            g = x;
+            b = 0;
+        } else if (60 <= h && h < 120) {
+            r = x;
+            g = c;
+            b = 0;
+        } else if (120 <= h && h < 180) {
+            r = 0;
+            g = c;
+            b = x;
+        } else if (180 <= h && h < 240) {
+            r = 0;
+            g = x;
+            b = c;
+        } else if (240 <= h && h < 300) {
+            r = x;
+            g = 0;
+            b = c;
+        } else if (300 <= h && h < 360) {
+            r = c;
+            g = 0;
+            b = x;
+        }
+
+        // Add the adjustment factor to match the value (lightness)
+        r = Math.round((r + m) * 255);
+        g = Math.round((g + m) * 255);
+        b = Math.round((b + m) * 255);
+
+        return { r: r, g: g, b: b };
     }
 
 }
