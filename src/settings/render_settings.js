@@ -1,9 +1,10 @@
 export const Colors = {
     outlines: "#000000",
-    disc_body: "#fac943dd",
-    rect_body: "#67d685dd",
+    disc_body: "#fac943",
+    rect_body: "#c88ced",
     link_constraint: "#ffffff",
     fixed_y_constraint: "#ffffff",
+    bodies_bounding_box: "#00ff00",
 }
 
 /**

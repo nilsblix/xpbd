@@ -19,9 +19,9 @@ export class User {
      *  onkeyup_cond?: fee2,
      *  }
      */
-    static handleKeyboardInputs(keys) {
-        for (let i = 0; i < keys.length; i++) {
-            const k = keys[i];
+    static handleKeyboardInputs(doc_keys) {
+        for (let i = 0; i < doc_keys.length; i++) {
+            const k = doc_keys[i];
 
             document.addEventListener("keydown", (e) => {
                 if (e.key == k.key && k.onkeydown_cond)

@@ -6,6 +6,7 @@ import { Vector2 } from "./utils/math.js";
 import { PhysicsSystem } from "./physics_system.js";
 import { RigidBody } from "./rigid_body.js";
 import { OffsetLinkConstraint, FixedYConstraint } from "./constraints.js";
+import { SpringJoint } from "./force_generators.js";
 
 /**
  * Setups up a scene. Make sure prev-scene is the nothing scene.
@@ -25,6 +26,8 @@ export function setupScene(ver, psystem) {
             psystem.bodies.push(body2);
             psystem.bodies.push(body3);
             psystem.bodies.push(body4);
+
+            psystem.force_generators.push(new SpringJoint(2, new Vector2(-0.1, 0.0), 3, new Vector2(0.0, -0.1)));
 
             const left_r = new Vector2(0.75, 0);
             const right_r = new Vector2(-0.75, 0);

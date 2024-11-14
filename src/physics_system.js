@@ -3,7 +3,9 @@ import { Colors, LineWidths } from "./settings/render_settings.js";
 import { Units } from "./utils/units.js";
 import { Vector2 } from "./utils/math.js";
 
-import {Gravity, LinearDamping} from "./force_generators.js";
+import {Gravity, MouseSpring} from "./force_generators.js";
+
+import { User } from "./user.js";
 
 export class PhysicsSystem {
 
@@ -18,6 +20,15 @@ export class PhysicsSystem {
 
     static simulating = false;
 
+    // constants
+    static GRAVITY = 9.82;
+    static SPRING_JOINT_STIFFNESS = 50;
+    static MOUSESPRING_JOINT_STIFFNESS = 50;
+
+    // static objects
+    static mouse_spring = new MouseSpring();
+
+
     constructor() {
         this.bodies = [];
         this.force_generators = [];
@@ -29,6 +40,12 @@ export class PhysicsSystem {
 
     process() {
 
+        for (let i = 0; i < this.bodies.length; i++) {
+            if (User.mouse.left_down && PhysicsSystem.mouse_spring.bodyIsValid(this.bodies[i])) {
+                break;
+            }
+        }
+
         if (!PhysicsSystem.simulating) return;
 
         const sub_dt = PhysicsSystem.dt / PhysicsSystem.sub_steps;
@@ -39,6 +56,8 @@ export class PhysicsSystem {
             for (let i = 0; i < this.force_generators.length; i++) {
                 this.force_generators[i].apply(this.bodies);
             }
+
+            if (PhysicsSystem.mouse_spring.id != -1) PhysicsSystem.mouse_spring.apply(this.bodies);
 
             // integrate
             for (let i = 0; i < this.bodies.length; i++) {
@@ -93,6 +112,14 @@ export class PhysicsSystem {
         for (let i = 0; i < this.constraints.length; i++) {
             this.constraints[i].render(this.bodies);
         }
+
+        for (let i = 0; i < this.force_generators.length; i++) {
+            this.force_generators[i].render(this.bodies);
+        }
+
+        if (PhysicsSystem.mouse_spring.id == -1) return;
+        PhysicsSystem.mouse_spring.render(this.bodies);
+
     }
 
     getSystemEnergy() {
