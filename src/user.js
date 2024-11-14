@@ -4,8 +4,8 @@ import { Units } from "./utils/units.js";
 export class User {
     static mouse = {
         left_down: false,
-        sim_pos: Vector2.zero,
-        canv_pos: Vector2.zero,
+        sim_pos: Vector2.zero.clone(),
+        canv_pos: Vector2.zero.clone(),
     }
 
     /**
@@ -42,20 +42,20 @@ export class User {
      * @param {HTMLCanvasElement} canvas 
      */
     static initMouseEventListeners(canvas) {
-        document.addEventListener("mousemove", (e) => {
+        canvas.addEventListener("mousemove", (e) => {
             const rect = canvas.getBoundingClientRect();
-            const x = e.clientX + rect.x;
-            const y = e.clientY + rect.y;
+            const x = e.clientX - rect.x;
+            const y = e.clientY - rect.y;
             User.mouse.canv_pos.x = x;
             User.mouse.canv_pos.y = y;
-            User.mouse.sim_pos = Units.c2s(User.mouse.canv_pos);
+            User.mouse.sim_pos.set(Units.c2s(User.mouse.canv_pos));
         });
 
-        document.addEventListener("mousedown", (e) => {
+        canvas.addEventListener("mousedown", (e) => {
             User.mouse.left_down = true;
         });
 
-        document.addEventListener("mouseup", (e) => {
+        canvas.addEventListener("mouseup", (e) => {
             User.mouse.left_down = false;
         });
 

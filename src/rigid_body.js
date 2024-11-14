@@ -89,7 +89,7 @@ export class RigidBody {
         }
     }
 
-    render() {
+    render(bounding_boxes) {
 
         this.geometry.bounding_box.max = this.pos.clone();
         this.geometry.bounding_box.min = this.pos.clone();
@@ -131,9 +131,11 @@ export class RigidBody {
             Render.polygon(this.geometry.world_vertices, true, true);
         }
 
-        Render.c.strokeStyle = Colors.bodies_bounding_box;
-        Render.rect(this.geometry.bounding_box.min, new Vector2(this.geometry.bounding_box.max.x - this.geometry.bounding_box.min.x, 
-                                                                this.geometry.bounding_box.max.y - this.geometry.bounding_box.min.y), true, false);
+        if (bounding_boxes) {
+            Render.c.strokeStyle = Colors.bodies_bounding_box;
+            Render.rect(this.geometry.bounding_box.min, new Vector2(this.geometry.bounding_box.max.x - this.geometry.bounding_box.min.x, 
+                                                                    this.geometry.bounding_box.max.y - this.geometry.bounding_box.min.y), true, false);
+        }
 
     }
 

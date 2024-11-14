@@ -18,3 +18,4 @@ export const LineWidths = {
     fixed_constraints_outlines: 0.01,
     fixed_constraints_lines: 0.02,
 }
+

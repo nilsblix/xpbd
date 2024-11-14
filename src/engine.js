@@ -10,7 +10,7 @@ import { updateGUI } from "./dear-imgui/gui_helper.js";
 
 import { setupScene } from "./demo_scenes.js";
 
-const SUB_STEPS = 10;
+const SUB_STEPS = 20;
 
 PhysicsSystem.sub_steps = SUB_STEPS;
 
@@ -19,9 +19,10 @@ const physics_timer = new ScopedTimer(true, 5);
 const render_timer = new ScopedTimer(true, 5);
 const fps_calculator = new FPSCalculator();
 
-export function start() {
+export function start(canvas) {
     psystem = new PhysicsSystem();
     handleEventsOnInput();
+    User.initMouseEventListeners(canvas);
 }
 
 export function update(canvas) {
@@ -109,6 +110,20 @@ function handleEventsOnInput() {
                 paused.style.display = "block";
 
                 setupScene("test 1", psystem);
+            },
+            onkeydown_cond: true,
+            onkeyup_do: null,
+            onkeyup_cond: false,
+        },
+        {
+            key: "2",
+            onkeydown_do: () => {
+                PhysicsSystem.simulating = false;
+                psystem = new PhysicsSystem();
+                const paused = document.getElementById("paused");
+                paused.style.display = "block";
+
+                setupScene("test 2", psystem);
             },
             onkeydown_cond: true,
             onkeyup_do: null,

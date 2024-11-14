@@ -26,7 +26,7 @@ export class Gravity {
     getWorkStored(bodies) {
         let E = 0;
         for (let i = 0; i < bodies.length; i++) {
-            E += bodies[i].pos.y * bodies[i].mass * Gravity.gravity;
+            E += bodies[i].pos.y * bodies[i].mass * PhysicsSystem.GRAVITY;
         }
         return E;
     }
@@ -35,6 +35,23 @@ export class Gravity {
 
     }
 
+}
+
+export class EnergyDamping {
+    apply(bodies) {
+        for (let i = 0; i < bodies.length; i++) {
+            bodies[i].force = Vector2.sub(bodies[i].force, Vector2.scale(PhysicsSystem.ENERGY_DAMP_MU, bodies[i].vel));
+            bodies[i].tau -= 0.01 * PhysicsSystem.ENERGY_DAMP_MU * bodies[i].omega;
+        }
+    }
+
+    getWorkStored(bodies) {
+        return 0;
+    }
+
+    render(bodies) {
+        return;
+    }
 }
 
 export class SpringJoint {
@@ -71,8 +88,8 @@ export class SpringJoint {
         b1.force.set(Vector2.add(b1.force, force));
         b2.force.set(Vector2.sub(b2.force, force));
 
-        b1.tau += Vector2.cross(this.r1, force) / b1.I;
-        b2.tau += Vector2.cross(this.r2, Vector2.negate(force)) / b2.I;
+        b1.tau += Vector2.cross(Vector2.sub(a1, b1.pos), force);
+        b2.tau += Vector2.cross(Vector2.sub(a2, b2.pos), Vector2.negate(force));
 
     }
 
@@ -85,7 +102,7 @@ export class SpringJoint {
 
         const dist = Vector2.distance(a1, a2);
         const hookes = dist - this.l0;
-        return PhysicsSystem.SPRING_JOINT_STIFFNESS * hookes;
+        return 1 / 2 * PhysicsSystem.SPRING_JOINT_STIFFNESS * hookes * hookes;
     }
 
     render(bodies) {
@@ -104,6 +121,7 @@ export class SpringJoint {
 
 export class MouseSpring {
     constructor() {
+        this.active = false;
         this.id = -1;
         this.r = Vector2.zero.clone();
         this.l0 = 0.05;
@@ -115,7 +133,7 @@ export class MouseSpring {
      */
     bodyIsValid(body, body_index) {
         if (body.insideBoundingBox(User.mouse.sim_pos)) {
-            this.i = body_index;
+            this.id = body_index;
             this.r = body.worldToLocal(User.mouse.sim_pos);
             return true;
         }
@@ -128,14 +146,16 @@ export class MouseSpring {
         const a = b.localToWorld(this.r);
 
         const dist = Vector2.distance(User.mouse.sim_pos, a);
+        if (dist == 0) return;
         const hookes = dist - this.l0;
         const force_value = PhysicsSystem.MOUSESPRING_JOINT_STIFFNESS * hookes;
 
-        const force = Vector2.scale(force_value * 1 / dist, Vector2.sub(User.mouse.sim_pos, a));
+        const n = Vector2.scale(1 / dist, Vector2.sub(User.mouse.sim_pos, a));
+        const force = Vector2.scale(force_value, n);
 
         // apply forces
         b.force.set(Vector2.add(b.force, force));
-        b.tau += Vector2.cross(this.r, force) / b.I;
+        b.tau += Vector2.cross(Vector2.sub(a, b.pos), force);
     }
 
     render(bodies) {

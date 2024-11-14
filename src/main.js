@@ -12,5 +12,5 @@ initGUIWindows();
 Units.init(canvas);
 Render.init(canvas.getContext("2d"));
 
-start();
+start(canvas);
 update(canvas);
