@@ -45,6 +45,7 @@
             font-size: 4rem;
 
             text-align: center;
+            pointer-events: none;
         }
 
     </style>
@@ -52,7 +53,7 @@
 <body>
     <canvas id="engine"></canvas>
 
-    <div class="top-left-label">[a][z]</div>
+    <div class="top-left-label">[a][z][e]</div>
 
     <div id="paused">*paused</div>
     <script>document.getElementById("paused").style.display = "block";</script>
@@ -81,6 +82,60 @@
         <div class="gui-label">
             <p> FR = <span id="info-framerate">-1</span> Hz</p>
             <p> SR = <span id="info-simrate">-1</span> Hz</p>
+        </div>
+
+    </div>
+
+    <div id="editor-window" class="gui-window" style="width: 300px">
+        <div id="editor-header" class="gui-header">
+            &nbsp;// EDITOR
+            <span id="editor-close-button" class="gui-header-close-button">x</span>
+        </div>
+
+        <label class="gui-checkbox-label">
+            <input id="editor-toggle-active" type="checkbox" unchecked>
+            Toggle editor
+        </label>
+
+        <p class="gui-primary-header">Spawner settings</p>
+        <div class="gui-grid-label">
+            <div class="gui-column">
+                <p class="gui-split-label-left">Rigidbody type</p>
+                <p class="gui-split-label-right">1 => Disc, 2 => Rect</p>
+            </div>
+        </div>
+        <div class="gui-slider-container">
+            <input id="editor-rigidbody-type-slider" class="gui-slider" type="range" min="1" max="2" step="1" value="1">
+            <div id="editor-rigidbody-type-value" class="gui-slider-label">1</div>
+        </div>
+
+        <div class="gui-grid-label">
+            <div class="gui-column">
+                <p class="gui-split-label-left">Joint type</p>
+                <p class="gui-split-label-right">1 => Link, 2 => nothing</p>
+            </div>
+        </div>
+        <div class="gui-slider-container">
+            <input id="editor-joint-type-slider" class="gui-slider" type="range" min="1" max="2" step="1" value="1">
+            <div id="editor-joint-type-value" class="gui-slider-label">1</div>
+        </div>
+
+        <div class="gui-grid-label">
+            <div class="gui-column">
+                <p class="gui-split-label-left">Constraint Compliance</p>
+                <p class="gui-split-label-right">0.0 ==> Infinite stiffness (default)</p>
+            </div>
+        </div>
+        <div class="gui-slider-container">
+            <input id="editor-constraint-compliance-slider" class="gui-slider" type="range" min="0" max="0.5" step="0.001" value="0">
+            <div id="editor-constraint-compliance-value" class="gui-slider-label">0</div>
+        </div>
+        
+        <p class="gui-primary-header">Rigidbody settings</p>
+        <div class="gui-label">Mass</div>
+        <div class="gui-slider-container">
+            <input id="editor-mass-slider" class="gui-slider" type="range" min="0.1" max="60" step="0.1" value="1">
+            <div id="editor-mass-value" class="gui-slider-label">1</div>
         </div>
 
     </div>

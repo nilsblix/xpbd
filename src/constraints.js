@@ -122,7 +122,7 @@ export class OffsetLinkConstraint {
 
 }
 
-export class PrismaticConstraint {
+export class PrismaticYConstraint {
     /**
      * @param {number} alpha Compliancy
      * @param {*} id 

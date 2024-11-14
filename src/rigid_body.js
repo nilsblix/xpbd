@@ -45,7 +45,6 @@ export class RigidBody {
             height: geometry.height,
             local_vertices: [],
             world_vertices: [], // gets updated in render
-            bounding_box: {min: Vector2.zero.clone(), max: Units.DIMS.clone()}, // gets updated in render.
         };
 
         if (geometry.type == "disc") {
@@ -68,36 +67,32 @@ export class RigidBody {
         return 1/2 * this.mass * this.vel.sqr_magnitude() + 1/2 * this.I * Math.abs(this.omega * this.omega);
     }
 
-    /**
-     * @param {Vector2} p Point one is testing is inside or not
-     * @returns {boolean}
-     */
-    insideBoundingBox(p) {
-        const max = this.geometry.bounding_box.max;
-        const min = this.geometry.bounding_box.min;
+    pointIsInside(point) {
         switch (this.geometry.type) {
             case "disc":
-                return  (p.x > this.pos.x - this.geometry.radius) &&
-                        (p.x < this.pos.x + this.geometry.radius) && 
-                        (p.y > this.pos.y - this.geometry.radius) &&
-                        (p.y < this.pos.y + this.geometry.radius);
+                const dist2 = Vector2.sqr_distance(this.pos, point);
+                if (dist2 < this.geometry.radius * this.geometry.radius)
+                    return true;
+                else return false;
+                break;
             case "rect":
-                return  (p.x > min.x) &&
-                        (p.x < max.x) && 
-                        (p.y > min.y) &&
-                        (p.y < max.y);
+                for (let i = 0; i < this.geometry.world_vertices.length; i++) {
+                    const a1 = this.geometry.world_vertices[i];
+                    const a2 = i == this.geometry.world_vertices.length - 1 ? this.geometry.world_vertices[0] : this.geometry.world_vertices[i + 1];
+                    const dir = Vector2.sub(a2, a1)
+                    const dir_T = new Vector2(-dir.y, dir.x);
+                    const dot = dir_T.dot(Vector2.sub(point, a1));
+                    if (dot > 0.0) return false;
+                }
+
+                return true;        
+                break;
         }
     }
 
-    render(bounding_boxes) {
-
-        this.geometry.bounding_box.max = this.pos.clone();
-        this.geometry.bounding_box.min = this.pos.clone();
+    render() {
 
         if (this.geometry.type == "disc") {
-
-            this.geometry.bounding_box.max = new Vector2(this.pos.x + this.geometry.radius, this.pos.y + this.geometry.radius);
-            this.geometry.bounding_box.min = new Vector2(this.pos.x - this.geometry.radius, this.pos.y - this.geometry.radius);
 
             Render.c.fillStyle = Colors.disc_body;
             Render.c.strokeStyle = Colors.outlines;
@@ -114,27 +109,10 @@ export class RigidBody {
                 this.geometry.world_vertices.push(this.localToWorld(this.geometry.local_vertices[i]));
             }
 
-            const max = this.geometry.bounding_box.max;
-            const min = this.geometry.bounding_box.min;
-
-            for (let i = 0; i < this.geometry.world_vertices.length; i++) {
-                const p = this.geometry.world_vertices[i];
-                if (p.x > max.x) max.x = p.x;
-                if (p.y > max.y) max.y = p.y;
-                if (p.x < min.x) min.x = p.x;
-                if (p.y < min.y) min.y = p.y;
-            }
-
             Render.c.fillStyle = Colors.rect_body;
             Render.c.strokeStyle = Colors.outlines;
             Render.c.lineWidth = Units.mult_s2c * LineWidths.bodies;
             Render.polygon(this.geometry.world_vertices, true, true);
-        }
-
-        if (bounding_boxes) {
-            Render.c.strokeStyle = Colors.bodies_bounding_box;
-            Render.rect(this.geometry.bounding_box.min, new Vector2(this.geometry.bounding_box.max.x - this.geometry.bounding_box.min.x, 
-                                                                    this.geometry.bounding_box.max.y - this.geometry.bounding_box.min.y), true, false);
         }
 
     }

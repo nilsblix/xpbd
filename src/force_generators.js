@@ -137,7 +137,7 @@ export class SpringJoint {
                               Vector2.scale(2 * box_width, Vector2.negate(dir_T)))));
 
         // ACTUAL SPRING ---------------------------------------------------------------------
-        const spring_length = dist - box_width + 2 * LineWidths.lines_outlines;
+        const spring_length = dist - box_height;
         const seg_length = spring_length / RenderConstants.spring_joint_segments;
         const spring_start = Vector2.scale(1 / 2, Vector2.add(horizontal_11, horizontal_12));
         for (let i = 0; i < RenderConstants.spring_joint_segments; i++) {
@@ -151,30 +151,30 @@ export class SpringJoint {
         // FIRST HALF, AS I WANT THEM TO BE OVERLAYED CORRECTLY
         for (let i = 0; i < RenderConstants.spring_joint_segments; i += 2) {
             const seg_start = segments[i];
-            const seg_end = i == 0 ? horizontal_11 : i == RenderConstants.spring_joint_segments - 1 ? horizontal_21 : segments[i + 1];
+            const seg_end = i == RenderConstants.spring_joint_segments - 1 ? horizontal_22 : segments[i + 1];
 
             Render.c.lineCap = "round";
             Render.c.strokeStyle = Colors.outlines;
-            Render.c.lineWidth = (LineWidths.spring_joint_segment_width + 2 * LineWidths.lines_outlines) * Units.mult_s2c;
+            Render.c.lineWidth = (RenderConstants.spring_joint_segment_width + 2 * LineWidths.lines_outlines) * Units.mult_s2c;
             Render.line(seg_start, seg_end);
 
             Render.c.strokeStyle = Colors.spring_joint;
-            Render.c.lineWidth = (LineWidths.spring_joint_segment_width) * Units.mult_s2c;
+            Render.c.lineWidth = (RenderConstants.spring_joint_segment_width) * Units.mult_s2c;
             Render.line(seg_start, seg_end);
         }
 
         // SECOND HALF, AS I WANT THEM TO BE OVERLAYED CORRECTLY
         for (let i = 1; i < RenderConstants.spring_joint_segments; i += 2) {
             const seg_start = segments[i];
-            const seg_end = i == 0 ? horizontal_11 : i == RenderConstants.spring_joint_segments - 1 ? horizontal_21 : segments[i + 1];
+            const seg_end = i == RenderConstants.spring_joint_segments - 1 ? horizontal_22 : segments[i + 1];
 
             Render.c.lineCap = "round";
             Render.c.strokeStyle = Colors.outlines;
-            Render.c.lineWidth = (LineWidths.spring_joint_segment_width + 2 * LineWidths.lines_outlines) * Units.mult_s2c;
+            Render.c.lineWidth = (RenderConstants.spring_joint_segment_width + 2 * LineWidths.lines_outlines) * Units.mult_s2c;
             Render.line(seg_start, seg_end);
 
             Render.c.strokeStyle = Colors.spring_joint;
-            Render.c.lineWidth = (LineWidths.spring_joint_segment_width) * Units.mult_s2c;
+            Render.c.lineWidth = (RenderConstants.spring_joint_segment_width) * Units.mult_s2c;
             Render.line(seg_start, seg_end);
         }
 
@@ -239,7 +239,7 @@ export class MouseSpring {
      * @param {RigidBody} body 
      */
     bodyIsValid(body, body_index) {
-        if (body.insideBoundingBox(User.mouse.sim_pos)) {
+        if (body.pointIsInside(User.mouse.sim_pos)) {
             this.id = body_index;
             this.r = body.worldToLocal(User.mouse.sim_pos);
             return true;
@@ -265,14 +265,132 @@ export class MouseSpring {
         b.tau += Vector2.cross(Vector2.sub(a, b.pos), force);
     }
 
-    render(bodies) {
+    getWorkStored(bodies) {
         const b = bodies[this.id];
+
         const a = b.localToWorld(this.r);
 
-        Render.c.strokeStyle = "#ff0000";
-        Render.c.lineWidth = 0.08 * Units.mult_s2c;
-        Render.line(a, User.mouse.sim_pos);
+        const dist = Vector2.distance(User.mouse.sim_pos, a);
+        if (dist == 0) return 0;
+        const hookes = dist - this.l0;
+        return 1 / 2 * PhysicsSystem.MOUSESPRING_JOINT_STIFFNESS * hookes * hookes;
+    }
 
+    render(bodies) {
+        const b = bodies[this.id];
+
+        const a1 = b.localToWorld(this.r);
+        const a2 = User.mouse.sim_pos;
+
+        const segments = [];
+
+        const dist = Vector2.distance(a1, a2);
+        const dir = Vector2.scale(1 / dist, Vector2.sub(a2, a1)); // from a1 to a2
+        const dir_T = new Vector2(-dir.y, dir.x); // rotate positive 90 degrees from a1 to a2
+
+        const box_width = RenderConstants.spring_joint_box_width;
+        const box_height = RenderConstants.spring_joint_box_height;
+
+        const horizontal_11 = Vector2.add(a1, 
+                             (Vector2.add(Vector2.scale(box_height / 2 + LineWidths.lines_outlines, dir),
+                              Vector2.scale(2 * box_width, Vector2.negate(dir_T)))));
+        const horizontal_12 = Vector2.add(a1, 
+                             (Vector2.add(Vector2.scale(box_height / 2 + LineWidths.lines_outlines, dir),
+                            Vector2.scale(2 * box_width, dir_T))));
+
+        const horizontal_21 = Vector2.add(a2, 
+                             (Vector2.add(Vector2.scale(box_height / 2 + LineWidths.lines_outlines, Vector2.negate(dir)),
+                              Vector2.scale(2 * box_width, dir_T))));
+        const horizontal_22 = Vector2.add(a2, 
+                             (Vector2.add(Vector2.scale(box_height / 2 + LineWidths.lines_outlines, Vector2.negate(dir)),
+                              Vector2.scale(2 * box_width, Vector2.negate(dir_T)))));
+
+        // ACTUAL SPRING ---------------------------------------------------------------------
+        const spring_length = dist - box_height;
+        const seg_length = spring_length / RenderConstants.spring_joint_segments;
+        const spring_start = Vector2.scale(1 / 2, Vector2.add(horizontal_11, horizontal_12));
+        for (let i = 0; i < RenderConstants.spring_joint_segments; i++) {
+            const length_along_dir = seg_length * i;
+            const length_along_dirT = RenderConstants.spring_joint_spring_width * ((i % 2)  - 0.5);
+            const A = Vector2.add(spring_start, Vector2.scale(length_along_dir, dir));
+            const B = Vector2.scale(length_along_dirT, dir_T);
+            segments.push(Vector2.add(A, B));
+        }
+
+        // FIRST HALF, AS I WANT THEM TO BE OVERLAYED CORRECTLY
+        for (let i = 0; i < RenderConstants.spring_joint_segments; i += 2) {
+            const seg_start = segments[i];
+            const seg_end = i == RenderConstants.spring_joint_segments - 1 ? horizontal_22 : segments[i + 1];
+
+            Render.c.lineCap = "round";
+            Render.c.strokeStyle = Colors.outlines;
+            Render.c.lineWidth = (RenderConstants.spring_joint_segment_width + 2 * LineWidths.lines_outlines) * Units.mult_s2c;
+            Render.line(seg_start, seg_end);
+
+            Render.c.strokeStyle = Colors.spring_joint;
+            Render.c.lineWidth = (RenderConstants.spring_joint_segment_width) * Units.mult_s2c;
+            Render.line(seg_start, seg_end);
+        }
+
+        // SECOND HALF, AS I WANT THEM TO BE OVERLAYED CORRECTLY
+        for (let i = 1; i < RenderConstants.spring_joint_segments; i += 2) {
+            const seg_start = segments[i];
+            const seg_end = i == RenderConstants.spring_joint_segments - 1 ? horizontal_22 : segments[i + 1];
+
+            Render.c.lineCap = "round";
+            Render.c.strokeStyle = Colors.outlines;
+            Render.c.lineWidth = (RenderConstants.spring_joint_segment_width + 2 * LineWidths.lines_outlines) * Units.mult_s2c;
+            Render.line(seg_start, seg_end);
+
+            Render.c.strokeStyle = Colors.spring_joint;
+            Render.c.lineWidth = (RenderConstants.spring_joint_segment_width) * Units.mult_s2c;
+            Render.line(seg_start, seg_end);
+        }
+
+        // BOX 1 ---------------------------------------------------------------------------------
+        // box ==>
+        // 2 3
+        // 1 4
+        const box_11 = Vector2.add(
+                       Vector2.add(Vector2.scale(box_height / 2, dir), Vector2.scale(box_width / 2, Vector2.negate(dir_T))), 
+                       a1);
+        const box_12 = Vector2.add(box_11, Vector2.scale(box_height, Vector2.negate(dir)));
+        const box_13 = Vector2.add(box_12, Vector2.scale(box_width, dir_T));
+        const box_14 = Vector2.sub(box_13, Vector2.scale(box_height, Vector2.negate(dir)));
+
+        // BOX 2 ---------------------------------------------------------------------------------
+        // box ==>
+        // 2 3
+        // 1 4
+        const box_21 = Vector2.add(
+                       Vector2.add(Vector2.scale(box_height / 2, Vector2.negate(dir)), Vector2.scale(box_width / 2, dir_T)), 
+                       a2);
+        const box_22 = Vector2.add(box_21, Vector2.scale(box_height, dir));
+        const box_23 = Vector2.add(box_22, Vector2.scale(box_width, Vector2.negate(dir_T)));
+        const box_24 = Vector2.sub(box_23, Vector2.scale(box_height, dir));
+
+        Render.c.fillStyle = Colors.spring_joint;
+        Render.c.strokeStyle = Colors.outlines;
+        Render.c.lineWidth = LineWidths.lines_outlines * Units.mult_s2c;
+
+        Render.polygon([box_11, box_12, box_13, box_14], true, true);
+        Render.arc(a1, RenderConstants.spring_joint_box_radius, true, false);
+        
+        Render.polygon([box_21, box_22, box_23, box_24], true, true);
+        Render.arc(a2, RenderConstants.spring_joint_box_radius, true, false);
+
+        // HORIZONTAL LINES -------------------------------------------------------------- 
+        Render.c.lineCap = "round";
+        Render.c.strokeStyle = Colors.outlines;
+        Render.c.lineWidth = (LineWidths.spring_joint_horizontal_line + 2 * LineWidths.lines_outlines) * Units.mult_s2c;
+        Render.line(horizontal_11, horizontal_12);
+        Render.line(horizontal_21, horizontal_22);
+
+        Render.c.strokeStyle = Colors.spring_joint;
+        Render.c.lineWidth = (LineWidths.spring_joint_horizontal_line) * Units.mult_s2c;
+        Render.line(horizontal_11, horizontal_12);
+        Render.line(horizontal_21, horizontal_22);
+        
     }
 
 }

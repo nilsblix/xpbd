@@ -1,11 +1,9 @@
-import { Render } from "./utils/render.js";
-import { Colors, LineWidths } from "./settings/render_settings.js";
-import { Units } from "./utils/units.js";
 import { Vector2 } from "./utils/math.js";
 
-import {Gravity, EnergyDamping, MouseSpring} from "./force_generators.js";
+import {Gravity, EnergyDamping, MouseSpring, SpringJoint} from "./force_generators.js";
 
 import { User } from "./user.js";
+import { OffsetLinkConstraint, PrismaticYConstraint } from "./constraints.js";
 
 export class PhysicsSystem {
 
@@ -23,8 +21,8 @@ export class PhysicsSystem {
     // constants
     static GRAVITY = 9.82;
     static ENERGY_DAMP_MU = 0E-1;
-    static SPRING_JOINT_STIFFNESS = 20;
-    static MOUSESPRING_JOINT_STIFFNESS = 20;
+    static SPRING_JOINT_STIFFNESS = 10;
+    static MOUSESPRING_JOINT_STIFFNESS = 10;
 
     // static objects
     static mouse_spring = new MouseSpring();
@@ -148,7 +146,52 @@ export class PhysicsSystem {
             E += this.bodies[i].getKineticEnergy();
         }
 
+        if (PhysicsSystem.mouse_spring.active)
+            E += PhysicsSystem.mouse_spring.getWorkStored(this.bodies);
+
         return E;
+
+    }
+
+    addSpringJoint(id1, id2, r1, r2) {
+        this.force_generators.push(new SpringJoint(id1, r1, id2, r2));
+    }
+
+    /**
+     * @param {number} alpha Compliance
+     * @param {number} id1 
+     * @param {number} id2 
+     * @param {Vector2} r1 
+     * @param {Vector2} r2 
+     */
+    addLinkJoint(alpha, id1, id2, r1, r2) {
+        this.constraints.push(new OffsetLinkConstraint(alpha, id1, id2, r1, r2, 
+            Vector2.distance(Vector2.add(this.bodies[id1].pos, r1), Vector2.add(this.bodies[id2].pos, r2))));
+    }
+
+    /**
+     * @param {number} alpha 
+     * @param {string} type y...
+     * @param {number} id 
+     * @param {Vector2} r 
+     */
+    addPrismaticConstraint(alpha, type, id, r) {
+        switch (type) {
+            case "y":
+                this.constraints.push(new PrismaticYConstraint(alpha, id, r, this.bodies[id].pos.y + r.y));
+                break;
+        }
+
+    }
+
+    getRigidBodyInfoContainingPoint(point) {
+        for (let i = 0; i < this.bodies.length; i++) {
+            const body = this.bodies[i];
+            if (body.pointIsInside(point))
+                return {id: i, body: body};
+        }
+
+        return false;
 
     }
 

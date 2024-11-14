@@ -1,4 +1,5 @@
 import { PhysicsSystem } from "../physics_system.js";
+import { editor } from "../editor.js";
 
 class GUIWindow {
     // slider args is in [{slider_id: x, value_id: x, num_decimals: x}, {etc}]
@@ -32,7 +33,7 @@ class GUIWindow {
         });
 
         for (let i = 0; i < this.slider_args.length; i++) {
-            this.updateSlider(this.slider_args[i]);
+            GUIWindow.updateSlider(this.slider_args[i]);
         }
 
         document.addEventListener("keydown", (e) => {
@@ -85,13 +86,45 @@ const info = new GUIWindow(
     [],
 );
 
+const editor_window = new GUIWindow(
+    "e",
+    "editor-window",
+    "editor-header",
+    "editor-close-button",
+    [
+        {
+            slider_id: "editor-rigidbody-type-slider",
+            value_id: "editor-rigidbody-type-value",
+            num_decimals: "0",
+        },
+        {
+            slider_id: "editor-constraint-compliance-slider",
+            value_id: "editor-constraint-compliance-value",
+            num_decimals: "3",
+        },
+        {
+            slider_id: "editor-joint-type-slider",
+            value_id: "editor-joint-type-value",
+            num_decimals: "0",
+        },
+        {
+            slider_id: "editor-mass-slider",
+            value_id: "editor-mass-value",
+            num_decimals: "1",
+        },
+        
+    ],
+)
+
 export function initGUIWindows() {
     profiling.init();
     info.init();
+    editor_window.init();
 }
 
 export function updateGUI() {
     updateDisplayedDebugs();
+    updateChangedUserData();
 }
 
 function updateDisplayedDebugs() {
@@ -107,6 +140,32 @@ function updateDisplayedDebugs() {
 
 }
 
-function pushSliderValues() {
+function updateChangedUserData() {
+    // EDITOR ---------------------------------------------------------------------------------------------------------------------
+    if (document.getElementById("editor-toggle-active").checked) {
+        editor.active = true;
+        PhysicsSystem.simulating = false;
+        document.getElementById("paused").style.display = "block";
+        document.getElementById("paused").innerText = "*paused (EDITOR ACTIVE)"
+    } else {
+        editor.active = false;
+        document.getElementById("paused").innerText = "*paused"
+    }
+
+    const rigidbody_type_slider = document.getElementById("editor-rigidbody-type-slider");
+    if (rigidbody_type_slider.value == 1) {
+        editor.spawner.typeof_rigidbody = "disc"
+    } else if (rigidbody_type_slider.value == 2) {
+        editor.spawner.typeof_rigidbody = "rect"
+    }
+
+    const joint_type_slider = document.getElementById("editor-joint-type-slider");
+    if (joint_type_slider.value == 1) {
+        editor.spawner.typeof_joint = "link"
+    } else if (joint_type_slider.value == 2) {
+        editor.spawner.typeof_joint = "link"
+    }
+
+    editor.standard.mass = document.getElementById("editor-mass-slider").value;
 
 }

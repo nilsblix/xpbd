@@ -6,6 +6,7 @@ export class User {
         left_down: false,
         sim_pos: Vector2.zero.clone(),
         canv_pos: Vector2.zero.clone(),
+        grid_sim_pos: Vector2.zero.clone(),
     }
 
     /**
@@ -24,14 +25,14 @@ export class User {
             const k = doc_keys[i];
 
             document.addEventListener("keydown", (e) => {
-                if (e.key == k.key && k.onkeydown_cond)
-                    k.onkeydown_do(e);
+                if (e.key == k.key)
+                    k.onkeydown(e);
             });
 
-            if (!k.onkeyup_do) continue;
+            if (!k.onkeyup) continue;
             document.addEventListener("keyup", (e) => {
-                if (e.key == k.key && k.onkeyup_cond)
-                    k.onkeyup_do(e);
+                if (e.key == k.key)
+                    k.onkeyup(e);
             });
         }
 
@@ -49,6 +50,7 @@ export class User {
             User.mouse.canv_pos.x = x;
             User.mouse.canv_pos.y = y;
             User.mouse.sim_pos.set(Units.c2s(User.mouse.canv_pos));
+            User.mouse.grid_sim_pos.set(Units.snap_to_grid(User.mouse.sim_pos));
         });
 
         canvas.addEventListener("mousedown", (e) => {
