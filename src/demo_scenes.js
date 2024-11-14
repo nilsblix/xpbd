@@ -58,6 +58,8 @@ export function setupScene(ver, psystem) {
             psystem.bodies.push(b0);
             psystem.bodies.push(b1);
 
+            psystem.force_generators.push(new SpringJoint(0, new Vector2(0,0), 1, new Vector2(0,0)));
+
             const fixed_0 = new PrismaticConstraint(0.0, 0, new Vector2(-1.25, 0.0), b0.pos.y);
 
             const link_01 = new OffsetLinkConstraint(0.0, 0, 1, new Vector2(1.49, 0.0), new Vector2(-1.49, 0.0), 
