@@ -1,5 +1,5 @@
 import { Render } from "./utils/render.js";
-import { Colors, LineWidths } from "./settings/render_settings.js";
+import { Colors, LineWidths, RenderConstants } from "./settings/render_settings.js";
 import { Units } from "./utils/units.js";
 import { Vector2 } from "./utils/math.js";
 import { PhysicsSystem } from "./physics_system.js";
@@ -238,45 +238,9 @@ export class RevoluteJoint {
         this.r2 = r2;
 
         this.lambda = 0;
-        this.n = new Vector2(0, 1);
+        this.n = Vector2.zero.clone();
         this.C = 0;
     }
-
-    // const ax = a_p2.x;
-        // const bx = - a_p1.x;
-        // const cx = this.r2.x * Math.cos(body2.theta);
-        // const dx = - this.r1.x * Math.cos(body1.theta);
-        // const term_x = ax * ax + bx * bx + cx * cx + dx * dx
-        //                + 2 * (ax*bx + ax*cx + ax*dx + bx*cx + bx*dx + cx*dx);
-
-        // const ay = a_p2.y;
-        // const by = - a_p1.y;
-        // const cy = this.r2.y * Math.sin(body2.theta);
-        // const dy = - this.r1.y * Math.sin(body1.theta);
-        // const term_y = ay * ay + by * by + cy * cy + dy * dy
-        //                + 2 * (ay*by + ay*cy + ay*dy + by*cy + by*dy + cy*dy);
-            
-        // this.C = term_x + term_y;
-
-        // console.log("rev C: ", this.C);
-
-        // const dC_dx1 = (2 * a_p1.x) - 2 * (ax + cx + dx);
-        // const dC_dy1 = (2 * a_p1.y) - 2 * (ay + cy + dy);
-        // const d_cos_1 = this.r1.x * Math.sin(body1.theta);
-        // const d_sin_1 = - this.r1.y * Math.cos(body1.theta);
-        // const dC_dtheta1_x = 2 * d_cos_1 * dx + ax*d_cos_1 + bx*d_cos_1 + cx*d_cos_1;
-        // const dC_dtheta1_y = 2 * d_sin_1 * dy + ay*d_sin_1 + by*d_sin_1 + cy*d_sin_1;
-        // const dC_dtheta1 = dC_dtheta1_x + dC_dtheta1_y;
-
-        // const dC_dx2 = (2 * a_p2.x) + 2 * (bx + cx + dx);
-        // const dC_dy2 = (2 * a_p2.y) + 2 * (by + cy + dy);
-        // const d_cos_2 = - this.r2.x * Math.sin(body2.theta);
-        // const d_sin_2 = this.r2.y * Math.cos(body2.theta);
-        // const dC_dtheta2_x = 2 * d_cos_2 * cx + ax*d_cos_2 + bx*d_cos_2 + dx*d_cos_2;
-        // const dC_dtheta2_y = 2 * d_sin_2 * cy + ay*d_sin_2 + by*d_sin_2 + dy*d_sin_2;
-        // const dC_dtheta2 = dC_dtheta2_x + dC_dtheta2_y;
-        
-        // this.n.set(Vector2.sub(a_p2, a_p1).normalize());
 
     solve(bodies) {
         const sub_dt = PhysicsSystem.dt / PhysicsSystem.sub_steps;
@@ -288,13 +252,11 @@ export class RevoluteJoint {
         const a_p1 = body1.localToWorld(this.r1);
         const a_p2 = body2.localToWorld(this.r2);
 
-        console.log("a1: ", a_p1.toString());
-        console.log("a2: ", a_p2.toString());
-
         const delta_x = a_p1.x - a_p2.x;
         const delta_y = a_p1.y - a_p2.y;
         
         this.C = delta_x * delta_x + delta_y * delta_y;
+        if (this.C < PhysicsSystem.EPS) return;
 
         const dC_dx1 = 2 * delta_x;
         const dC_dy1 = 2 * delta_y;
@@ -331,15 +293,33 @@ export class RevoluteJoint {
         const body1 = bodies[this.id1];
         const body2 = bodies[this.id2];
 
+        // I'll use the average between these two, even though they should be the same
         const a1 = body1.localToWorld(this.r1);
         const a2 = body2.localToWorld(this.r2);
+        const a = Vector2.scale(1 / 2, Vector2.add(a1, a2));
 
-        Render.c.fillStyle = "#ff0000";
-        Render.c.strokeStyle = "#00ff00";
-        Render.c.lineWidth = 0.02 * Units.mult_s2c;
-        Render.arc(a1, 0.04, false, true);
-        Render.arc(a2, 0.04, false, true);
-        Render.line(a1, a2);
+        const vert_1 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.down));
+        const vert_2 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.up));
+
+        const hor_1 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.left));
+        const hor_2 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.right));
+
+        vert_1.set(Vector2.rotateAroundPoint(vert_1, body1.theta, a));
+        vert_2.set(Vector2.rotateAroundPoint(vert_2, body1.theta, a));
+        hor_1.set(Vector2.rotateAroundPoint(hor_1, body1.theta, a));
+        hor_2.set(Vector2.rotateAroundPoint(hor_2, body1.theta, a));
+
+        // Outer
+        Render.c.lineWidth = (LineWidths.revolute_joint + LineWidths.lines_outlines) * Units.mult_s2c;
+        Render.c.strokeStyle = Colors.outlines;
+        Render.line(vert_1, vert_2);
+        Render.line(hor_1, hor_2);
+
+        // Inner
+        Render.c.lineWidth = LineWidths.revolute_joint * Units.mult_s2c;
+        Render.c.strokeStyle = Colors.revolute_joint;
+        Render.line(vert_1, vert_2);
+        Render.line(hor_1, hor_2);
 
     }
 

@@ -3,11 +3,12 @@ export const Colors = {
     hologramic_spawning: "#87cfff99",
     hologramic_spawning_outline: "#1c73adcc",
     disc_body: "#fac943",
-    rect_body: "#95e64e",
+    rect_body: "#f06b2e",
     link_constraint: "#ffffff",
     fixed_y_constraint: "#ffffff",
     bodies_bounding_box: "#00ff00",
     spring_joint: "#ffffff",
+    revolute_joint: "#ffffff",
 }
 
 /**
@@ -22,6 +23,7 @@ export const LineWidths = {
     fixed_constraints_outlines: 0.01,
     fixed_constraints_lines: 0.02,
     spring_joint_horizontal_line: 0.05,
+    revolute_joint: 0.02,
 }
 
 export const RenderConstants = {
@@ -31,4 +33,5 @@ export const RenderConstants = {
     spring_joint_box_radius: 0.02,
     spring_joint_spring_width: 0.4,
     spring_joint_segment_width: 0.04,
+    revolute_joint_line_length: 0.15,
 }

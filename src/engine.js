@@ -12,10 +12,6 @@ import { setupScene } from "./demo_scenes.js";
 
 import { editor } from "./editor.js";
 
-const SUB_STEPS = 20;
-
-PhysicsSystem.sub_steps = SUB_STEPS;
-
 var psystem;
 const physics_timer = new ScopedTimer(true, 5);
 const render_timer = new ScopedTimer(true, 5);
@@ -81,19 +77,6 @@ function handleEventsOnInput() {
             onkeyup: null,
         },
         {
-            key: "ArrowUp",
-            onkeydown: (e) => {
-                e.preventDefault();
-                PhysicsSystem.sub_steps = 1;
-                PhysicsSystem.dt = fps_calculator.dt / SUB_STEPS;
-            },
-            onkeyup: (e) => {
-                e.preventDefault();
-                PhysicsSystem.sub_steps = SUB_STEPS;
-                PhysicsSystem.dt = fps_calculator.dt;
-            },
-        },
-        {
             key: "R",
             onkeydown: (e) => {
                 PhysicsSystem.simulating = false;
@@ -106,6 +89,11 @@ function handleEventsOnInput() {
         {
             key: "1",
             onkeydown: (e) => {
+                if (editor.active) {
+                    editor.spawner.typeof_joint = "spring";
+                    document.getElementById("editor-joint-type").innerHTML = "Spring";
+                    return;
+                }
                 if (!psystem.isDefault()) return;
                 PhysicsSystem.simulating = false;
                 psystem = new PhysicsSystem();
@@ -119,6 +107,11 @@ function handleEventsOnInput() {
         {
             key: "2",
             onkeydown: (e) => {
+                if (editor.active) {
+                    editor.spawner.typeof_joint = "link";
+                    document.getElementById("editor-joint-type").innerHTML = "Link";
+                    return;
+                }
                 if (!psystem.isDefault()) return;
                 PhysicsSystem.simulating = false;
                 psystem = new PhysicsSystem();
@@ -126,6 +119,28 @@ function handleEventsOnInput() {
                 paused.style.display = "block";
 
                 setupScene("test 2", psystem);
+            },
+            onkeyup: null,
+        },
+        {
+            key: "3",
+            onkeydown: (e) => {
+                if (editor.active) {
+                    editor.spawner.typeof_joint = "prismatic-y";
+                    document.getElementById("editor-joint-type").innerHTML = "Prismatic-Y";
+                    return;
+                }
+            },
+            onkeyup: null,
+        },
+        {
+            key: "4",
+            onkeydown: (e) => {
+                if (editor.active) {
+                    editor.spawner.typeof_joint = "revolute";
+                    document.getElementById("editor-joint-type").innerHTML = "Revolute";
+                    return;
+                }
             },
             onkeyup: null,
         },
@@ -142,10 +157,12 @@ function handleEventsOnInput() {
             onkeydown: (e) => {
                 if (editor.active) {
                     editor.active = false;
+                    document.getElementById("editor-active").innerHTML = "FALSE";
                     document.getElementById("paused").innerText = "*paused";
                 } else {
                     editor.active = true;
                     PhysicsSystem.simulating = false;
+                    document.getElementById("editor-active").innerHTML = "TRUE";
                     document.getElementById("paused").style.display = "block";
                     document.getElementById("paused").innerText = "*paused (EDITOR ACTIVE)";
                 }
@@ -220,6 +237,10 @@ function handleEventsOnInput() {
                         if (info.length <= 1) return;
                         editor.spawnJoint(psystem, "revolute", info[0].id, info[1].id, r, r2);
                         break;
+                    case "spring":
+                        editor.preliminary.two_body_joint.id1 = info[0].id;
+                        editor.preliminary.two_body_joint.r1 = r;
+                        break;
                 }
 
                 editor.spawning_joint = true; 
@@ -232,19 +253,24 @@ function handleEventsOnInput() {
                 }
 
                 if (!editor.spawning_joint) return;
+                editor.spawning_joint = false;
+
+                const info = psystem.getRigidBodyInfoContainingPoint(User.mouse.sim_pos, true);
+                if (!info) return;
+                const id1 = editor.preliminary.two_body_joint.id1;
+                const r1 = editor.preliminary.two_body_joint.r1;
+                const id2 = info[0].id;
+                const r2 = psystem.bodies[info[0].id].worldToLocal(User.mouse.sim_pos);
 
                 switch (editor.spawner.typeof_joint) {
                     case "link":
-                        const info = psystem.getRigidBodyInfoContainingPoint(User.mouse.sim_pos);
-                        if (!info) break;
-                        const link_id1 = editor.preliminary.two_body_joint.id1;
-                        const link_r1 = editor.preliminary.two_body_joint.r1;
-                        const link_id2 = info.id;
-                        const link_r2 = psystem.bodies[info.id].worldToLocal(User.mouse.sim_pos);
-                        editor.spawnJoint(psystem, "link", link_id1, link_id2, link_r1, link_r2);
+                        editor.spawnJoint(psystem, "link", id1, id2, r1, r2);
+                        break;
+                    case "spring":
+                        editor.spawnJoint(psystem, "spring", id1, id2, r1, r2);
                         break;
                 }
-                editor.spawning_joint = false;
+
             },
         },
     ]);

@@ -78,6 +78,10 @@ export const editor = {
                 break;
             case "revolute":
                 psystem.addRevoluteJoint(this.spawner.constraint_alpha, id1, id2, r1, r2);
+                break;
+            case "spring":
+                psystem.addSpringJoint(id1, id2, r1, r2);
+                break;
         }
     },
 
@@ -118,8 +122,12 @@ export const editor = {
         if (this.spawning_joint) {
             switch (this.spawner.typeof_joint) {
                 case "link":
-                    const pos_1 = psystem.bodies[this.preliminary.two_body_joint.id1].localToWorld(this.preliminary.two_body_joint.r1);
-                    Render.line(pos_1, User.mouse.sim_pos);
+                    const link_pos_1 = psystem.bodies[this.preliminary.two_body_joint.id1].localToWorld(this.preliminary.two_body_joint.r1);
+                    Render.line(link_pos_1, User.mouse.sim_pos);
+                    break;
+                case "spring":
+                    const spring_pos_1 = psystem.bodies[this.preliminary.two_body_joint.id1].localToWorld(this.preliminary.two_body_joint.r1);
+                    Render.line(spring_pos_1, User.mouse.sim_pos);
             }
         }
     }

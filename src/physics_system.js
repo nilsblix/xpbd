@@ -10,7 +10,7 @@ export class PhysicsSystem {
 
     static EPS = 1E-8;
 
-    static sub_steps = 1;
+    static sub_steps = 10;
     static dt = 1 / 120;
     static pdt = -1;
     static rdt = -1;
