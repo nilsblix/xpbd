@@ -202,10 +202,9 @@ export class PhysicsSystem {
             if (body.pointIsInside(point))
                 infos.push({id: i, body: body});
                 if (!search_through_bodies || infos.length == 2) return infos;
-                else infos.push({id: i, body: body});
         }
 
-        if (search_through_bodies) return infos;
+        if (search_through_bodies) return infos.length == 0 ? false : infos;
 
         return false;
 

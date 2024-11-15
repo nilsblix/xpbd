@@ -237,10 +237,46 @@ export class RevoluteJoint {
         this.r1 = r1;
         this.r2 = r2;
 
-        this.lambda = null;
+        this.lambda = 0;
         this.n = new Vector2(0, 1);
-        this.C = null;
+        this.C = 0;
     }
+
+    // const ax = a_p2.x;
+        // const bx = - a_p1.x;
+        // const cx = this.r2.x * Math.cos(body2.theta);
+        // const dx = - this.r1.x * Math.cos(body1.theta);
+        // const term_x = ax * ax + bx * bx + cx * cx + dx * dx
+        //                + 2 * (ax*bx + ax*cx + ax*dx + bx*cx + bx*dx + cx*dx);
+
+        // const ay = a_p2.y;
+        // const by = - a_p1.y;
+        // const cy = this.r2.y * Math.sin(body2.theta);
+        // const dy = - this.r1.y * Math.sin(body1.theta);
+        // const term_y = ay * ay + by * by + cy * cy + dy * dy
+        //                + 2 * (ay*by + ay*cy + ay*dy + by*cy + by*dy + cy*dy);
+            
+        // this.C = term_x + term_y;
+
+        // console.log("rev C: ", this.C);
+
+        // const dC_dx1 = (2 * a_p1.x) - 2 * (ax + cx + dx);
+        // const dC_dy1 = (2 * a_p1.y) - 2 * (ay + cy + dy);
+        // const d_cos_1 = this.r1.x * Math.sin(body1.theta);
+        // const d_sin_1 = - this.r1.y * Math.cos(body1.theta);
+        // const dC_dtheta1_x = 2 * d_cos_1 * dx + ax*d_cos_1 + bx*d_cos_1 + cx*d_cos_1;
+        // const dC_dtheta1_y = 2 * d_sin_1 * dy + ay*d_sin_1 + by*d_sin_1 + cy*d_sin_1;
+        // const dC_dtheta1 = dC_dtheta1_x + dC_dtheta1_y;
+
+        // const dC_dx2 = (2 * a_p2.x) + 2 * (bx + cx + dx);
+        // const dC_dy2 = (2 * a_p2.y) + 2 * (by + cy + dy);
+        // const d_cos_2 = - this.r2.x * Math.sin(body2.theta);
+        // const d_sin_2 = this.r2.y * Math.cos(body2.theta);
+        // const dC_dtheta2_x = 2 * d_cos_2 * cx + ax*d_cos_2 + bx*d_cos_2 + dx*d_cos_2;
+        // const dC_dtheta2_y = 2 * d_sin_2 * cy + ay*d_sin_2 + by*d_sin_2 + dy*d_sin_2;
+        // const dC_dtheta2 = dC_dtheta2_x + dC_dtheta2_y;
+        
+        // this.n.set(Vector2.sub(a_p2, a_p1).normalize());
 
     solve(bodies) {
         const sub_dt = PhysicsSystem.dt / PhysicsSystem.sub_steps;
@@ -249,45 +285,26 @@ export class RevoluteJoint {
         const body1 = bodies[this.id1];
         const body2 = bodies[this.id2];
 
-        console.log("b1 pos", body1.pos.toString());
-        console.log("b2 pos", body2.pos.toString());
-
         const a_p1 = body1.localToWorld(this.r1);
         const a_p2 = body2.localToWorld(this.r2);
 
-        const ax = a_p2.x;
-        const bx = - a_p1.x;
-        const cx = this.r2.x * Math.cos(body2.theta);
-        const dx = this.r1.x * Math.cos(body1.theta);
-        const term_x = ax * ax + bx * bx + cx * cx + dx * dx
-                       + 2 * (ax*bx + ax*cx + ax*dx + bx*cx + bx*dx + cx*dx);
+        console.log("a1: ", a_p1.toString());
+        console.log("a2: ", a_p2.toString());
 
-        const ay = a_p2.y;
-        const by = - a_p1.y;
-        const cy = this.r2.y * Math.sin(body2.theta);
-        const dy = this.r1.y * Math.sin(body1.theta);
-        const term_y = ay * ay + by * by + cy * cy + dy * dy
-                       + 2 * (ay*by + ay*cy + ay*dy + by*cy + by*dy + cy*dy);
-            
-        this.C = term_x + term_y;
-
-        const dC_dx1 = (-2 * a_p1.x) + 2 * (-ax - cx - dx);
-        const dC_dy1 = (-2 * a_p1.y) + 2 * (-ay - cy - dy);
-        const d_cos_1 = this.r1.x * Math.sin(body1.theta);
-        const d_sin_1 = - this.r1.y * Math.cos(body1.theta);
-        const dC_dtheta1_x = 2 * d_cos_1 * dx + ax*d_cos_1 + bx*d_cos_1 + cx*d_cos_1;
-        const dC_dtheta1_y = 2 * d_sin_1 * dy + ay*d_sin_1 + by*d_sin_1 + cy*d_sin_1;
-        const dC_dtheta1 = dC_dtheta1_x + dC_dtheta1_y;
-
-        const dC_dx2 = (2 * a_p2.x) + 2 * (bx + cx + dx);
-        const dC_dy2 = (2 * a_p2.y) + 2 * (by + cy + dy);
-        const d_cos_2 = - this.r2.x * Math.sin(body2.theta);
-        const d_sin_2 = this.r2.y * Math.cos(body2.theta);
-        const dC_dtheta2_x = 2 * d_cos_2 * cx + ax*d_cos_2 + bx*d_cos_2 + dx*d_cos_2;
-        const dC_dtheta2_y = 2 * d_sin_2 * cy + ay*d_sin_2 + by*d_sin_2 + dy*d_sin_2;
-        const dC_dtheta2 = dC_dtheta2_x + dC_dtheta2_y;
+        const delta_x = a_p1.x - a_p2.x;
+        const delta_y = a_p1.y - a_p2.y;
         
-        this.n.set(Vector2.sub(a_p2, a_p1).normalize());
+        this.C = delta_x * delta_x + delta_y * delta_y;
+
+        const dC_dx1 = 2 * delta_x;
+        const dC_dy1 = 2 * delta_y;
+        const dC_dtheta1 = 2*delta_x * (-Math.sin(body1.theta) * this.r1.x - Math.cos(body1.theta) * this.r1.y)
+                         + 2*delta_y * ( Math.cos(body1.theta) * this.r1.x - Math.sin(body1.theta) * this.r1.y);
+
+        const dC_dx2 = -2 * delta_x;
+        const dC_dy2 = -2 * delta_y;
+        const dC_dtheta2 = 2*delta_x * ( Math.sin(body2.theta) * this.r2.x + Math.cos(body2.theta) * this.r2.y)
+                         + 2*delta_y * (-Math.cos(body2.theta) * this.r2.x + Math.sin(body2.theta) * this.r2.y);
 
         const w_1 = (dC_dx1 * dC_dx1 + dC_dy1 * dC_dy1) / body1.mass + (dC_dtheta1 * dC_dtheta1) / body1.I;
         const w_2 = (dC_dx2 * dC_dx2 + dC_dy2 * dC_dy2) / body2.mass + (dC_dtheta2 * dC_dtheta2) / body2.I;

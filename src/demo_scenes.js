@@ -11,8 +11,8 @@ import { SpringJoint } from "./force_generators.js";
 export function setupScene(ver, psystem) {
     switch (ver) {
         case "test 1":
-            const b0 = new RigidBody(new Vector2(5, 4), 1, {type: "rect", width: 3.0, height: 0.5});
-            const b1 = new RigidBody(new Vector2(8, 4), 1, {type: "rect", width: 3.0, height: 0.5});
+            const b0 = new RigidBody(new Vector2(5, 4), 1, { type: "rect", width: 3.0, height: 0.5 });
+            const b1 = new RigidBody(new Vector2(8, 4), 1, { type: "rect", width: 3.0, height: 0.5 });
 
             psystem.bodies.push(b0);
             psystem.bodies.push(b1);
@@ -21,6 +21,20 @@ export function setupScene(ver, psystem) {
 
             psystem.addPrismaticJoint(0.0, "y", 0, new Vector2(-1.25, 0));
             psystem.addLinkJoint(0.0, 0, 1, new Vector2(1.4, 0.0), new Vector2(-1.4, 0.0));
+
+            break;
+
+        case "test 2":
+            const x0 = new RigidBody(new Vector2(5, 4), 1, { type: "rect", width: 3.0, height: 0.5 });
+            const x1 = new RigidBody(new Vector2(7.75, 4), 1, { type: "rect", width: 3.0, height: 0.5 });
+
+            psystem.bodies.push(x0);
+            psystem.bodies.push(x1);
+
+            // psystem.addSpringJoint(0, 1, Vector2.zero.clone(), Vector2.zero.clone());
+
+            psystem.addPrismaticJoint(0.0, "y", 0, new Vector2(-1.25, 0));
+            // psystem.addLinkJoint(0.0, 0, 1, new Vector2(1.4, 0.0), new Vector2(-1.4, 0.0));
 
             break;
 

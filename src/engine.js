@@ -117,6 +117,19 @@ function handleEventsOnInput() {
             onkeyup: null,
         },
         {
+            key: "2",
+            onkeydown: (e) => {
+                if (!psystem.isDefault()) return;
+                PhysicsSystem.simulating = false;
+                psystem = new PhysicsSystem();
+                const paused = document.getElementById("paused");
+                paused.style.display = "block";
+
+                setupScene("test 2", psystem);
+            },
+            onkeyup: null,
+        },
+        {
             key: "x",
             onkeydown: (e) => {
                 editor.spawning_rigidbody = false;
@@ -204,7 +217,7 @@ function handleEventsOnInput() {
                         editor.spawnPrismaticJoint(psystem, "y", info[0].id, r);
                         break;
                     case "revolute":
-                        if (!info.length > 1) return;
+                        if (info.length <= 1) return;
                         editor.spawnJoint(psystem, "revolute", info[0].id, info[1].id, r, r2);
                         break;
                 }
