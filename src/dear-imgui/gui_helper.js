@@ -133,6 +133,7 @@ function updateDisplayedDebugs() {
     document.getElementById("profiling-pdt").innerHTML = (PhysicsSystem.pdt * 1E3).toFixed(3);
     document.getElementById("profiling-rdt").innerHTML = (PhysicsSystem.rdt * 1E3).toFixed(3);
     document.getElementById("profiling-energy").innerHTML = (PhysicsSystem.energy).toFixed(3);
+    document.getElementById("profiling-c-eval").innerHTML = (PhysicsSystem.c_eval).toFixed(5);
 
     // info
     document.getElementById("info-framerate").innerHTML = (1 / PhysicsSystem.dt).toFixed(0);
@@ -142,16 +143,6 @@ function updateDisplayedDebugs() {
 
 function updateChangedUserData() {
     // EDITOR ---------------------------------------------------------------------------------------------------------------------
-    if (document.getElementById("editor-toggle-active").checked) {
-        editor.active = true;
-        PhysicsSystem.simulating = false;
-        document.getElementById("paused").style.display = "block";
-        document.getElementById("paused").innerText = "*paused (EDITOR ACTIVE)"
-    } else {
-        editor.active = false;
-        document.getElementById("paused").innerText = "*paused"
-    }
-
     const rigidbody_type_slider = document.getElementById("editor-rigidbody-type-slider");
     if (rigidbody_type_slider.value == 1) {
         editor.spawner.typeof_rigidbody = "disc"
@@ -163,9 +154,12 @@ function updateChangedUserData() {
     if (joint_type_slider.value == 1) {
         editor.spawner.typeof_joint = "link"
     } else if (joint_type_slider.value == 2) {
-        editor.spawner.typeof_joint = "link"
+        editor.spawner.typeof_joint = "prismatic-y"
+    } else if (joint_type_slider.value == 3) {
+        editor.spawner.typeof_joint = "revolute";
     }
 
     editor.standard.mass = document.getElementById("editor-mass-slider").value;
+    editor.spawner.constraint_alpha = document.getElementById("editor-constraint-compliance-slider").value;
 
 }

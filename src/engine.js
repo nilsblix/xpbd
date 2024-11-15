@@ -48,6 +48,7 @@ export function update(canvas) {
     PhysicsSystem.pdt = physics_timer.dt;
 
     PhysicsSystem.energy = psystem.getSystemEnergy();
+    PhysicsSystem.c_eval = psystem.getSumOfConstraints();
 
     render_timer.measure(() => {
         Render.c.clearRect(0, 0, canvas.width, canvas.height);
@@ -105,12 +106,36 @@ function handleEventsOnInput() {
         {
             key: "1",
             onkeydown: (e) => {
+                if (!psystem.isDefault()) return;
                 PhysicsSystem.simulating = false;
                 psystem = new PhysicsSystem();
                 const paused = document.getElementById("paused");
                 paused.style.display = "block";
 
                 setupScene("test 1", psystem);
+            },
+            onkeyup: null,
+        },
+        {
+            key: "x",
+            onkeydown: (e) => {
+                editor.spawning_rigidbody = false;
+                editor.spawning_joint = false;
+            },
+            onkeyup: null,
+        },
+        {
+            key: "E",
+            onkeydown: (e) => {
+                if (editor.active) {
+                    editor.active = false;
+                    document.getElementById("paused").innerText = "*paused";
+                } else {
+                    editor.active = true;
+                    PhysicsSystem.simulating = false;
+                    document.getElementById("paused").style.display = "block";
+                    document.getElementById("paused").innerText = "*paused (EDITOR ACTIVE)";
+                }
             },
             onkeyup: null,
         },
@@ -145,10 +170,12 @@ function handleEventsOnInput() {
                         editor.spawnRigidBody(psystem, editor.preliminary.disc.pos, editor.standard.mass, editor.preliminary.disc.radius);
                         break;
                     case "rect":
-                        const rect_pos = editor.preliminary.rect.origin_pos;
+                        const rect_pos = editor.preliminary.rect.origin_pos.clone();
                         const width = editor.preliminary.rect.width;
                         const height = editor.preliminary.rect.height;
                         rect_pos.set(Vector2.add(rect_pos, Vector2.scale(1/2, new Vector2(width, height))));
+                        editor.preliminary.rect.width = Math.abs(width);
+                        editor.preliminary.rect.height = Math.abs(height);
                         editor.spawnRigidBody(psystem, rect_pos, editor.standard.mass, null, editor.preliminary.rect.width, editor.preliminary.rect.height);
                         break;
                 }
@@ -156,29 +183,33 @@ function handleEventsOnInput() {
             },
         },
         {
-            key: "x",
-            onkeydown: (e) => {
-                editor.spawning_rigidbody = false;
-            },
-            onkeyup: null,
-        },
-        {
-            key: "v",
+            key: "c",
             onkeydown: (e) => {
                 if (!editor.active) return;
                 if (editor.spawning_joint) return;
 
-                editor.spawning_joint = true;
+                const info = psystem.getRigidBodyInfoContainingPoint(User.mouse.sim_pos, true);
+                if (!info) return;
+                const r = psystem.bodies[info[0].id].worldToLocal(User.mouse.sim_pos);
+                let r2 = Vector2.zero.clone();
+                if (info.length > 1)
+                    r2.set(psystem.bodies[info[1].id].worldToLocal(User.mouse.sim_pos));
 
                 switch (editor.spawner.typeof_joint) {
                     case "link":
-                        const info = psystem.getRigidBodyInfoContainingPoint(User.mouse.sim_pos);
-                        if (!info) return;
-                        const r = psystem.bodies[info.id].worldToLocal(User.mouse.sim_pos);
-                        editor.preliminary.link_joint.id1 = info.id;
-                        editor.preliminary.link_joint.r1 = r;
+                        editor.preliminary.two_body_joint.id1 = info[0].id;
+                        editor.preliminary.two_body_joint.r1 = r;
+                        break;
+                    case "prismatic-y":
+                        editor.spawnPrismaticJoint(psystem, "y", info[0].id, r);
+                        break;
+                    case "revolute":
+                        if (!info.length > 1) return;
+                        editor.spawnJoint(psystem, "revolute", info[0].id, info[1].id, r, r2);
                         break;
                 }
+
+                editor.spawning_joint = true; 
 
             },
             onkeyup: (e) => {
@@ -193,8 +224,8 @@ function handleEventsOnInput() {
                     case "link":
                         const info = psystem.getRigidBodyInfoContainingPoint(User.mouse.sim_pos);
                         if (!info) break;
-                        const link_id1 = editor.preliminary.link_joint.id1;
-                        const link_r1 = editor.preliminary.link_joint.r1;
+                        const link_id1 = editor.preliminary.two_body_joint.id1;
+                        const link_r1 = editor.preliminary.two_body_joint.r1;
                         const link_id2 = info.id;
                         const link_r2 = psystem.bodies[info.id].worldToLocal(User.mouse.sim_pos);
                         editor.spawnJoint(psystem, "link", link_id1, link_id2, link_r1, link_r2);

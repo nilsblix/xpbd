@@ -32,10 +32,10 @@ export const editor = {
             width: 0,
             height: 0,
         },
-        link_joint: {
+        two_body_joint: {
             id1: -1,
             r1: Vector2.zero.clone(),
-        }
+        },
     },
 
     /**
@@ -67,11 +67,8 @@ export const editor = {
      * @param {PhysicsSystem} psystem 
      * @param {string} type Type of prismatic constraint
      */
-    spawnPrismaticConstraint(psystem, type) {
-        const info = psystem.getRigidBodyInfoContainingPoint(User.mouse.sim_pos);
-        if (body) {
-            psystem.addPrismaticJoint(this.spawner.constraint_alpha, type, info.id, info.body.worldToLocal(User.mouse.sim_pos));
-        }
+    spawnPrismaticJoint(psystem, type, id, r) {
+        psystem.addPrismaticJoint(this.spawner.constraint_alpha, type, id, r);
     },
 
     spawnJoint(psystem, type, id1, id2, r1, r2) {
@@ -79,6 +76,8 @@ export const editor = {
             case "link":
                 psystem.addLinkJoint(this.spawner.constraint_alpha, id1, id2, r1, r2);
                 break;
+            case "revolute":
+                psystem.addRevoluteJoint(this.spawner.constraint_alpha, id1, id2, r1, r2);
         }
     },
 
@@ -119,7 +118,7 @@ export const editor = {
         if (this.spawning_joint) {
             switch (this.spawner.typeof_joint) {
                 case "link":
-                    const pos_1 = psystem.bodies[this.preliminary.link_joint.id1].localToWorld(this.preliminary.link_joint.r1);
+                    const pos_1 = psystem.bodies[this.preliminary.two_body_joint.id1].localToWorld(this.preliminary.two_body_joint.r1);
                     Render.line(pos_1, User.mouse.sim_pos);
             }
         }

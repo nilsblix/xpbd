@@ -19,7 +19,7 @@ export function setupScene(ver, psystem) {
 
             // psystem.addSpringJoint(0, 1, Vector2.zero.clone(), Vector2.zero.clone());
 
-            psystem.addPrismaticConstraint(0.0, "y", 0, new Vector2(-1.25, 0));
+            psystem.addPrismaticJoint(0.0, "y", 0, new Vector2(-1.25, 0));
             psystem.addLinkJoint(0.0, 0, 1, new Vector2(1.4, 0.0), new Vector2(-1.4, 0.0));
 
             break;

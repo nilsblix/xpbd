@@ -34,6 +34,7 @@ export class OffsetLinkConstraint {
 
         this.lambda = null;
         this.n = null;
+        this.C = null;
     }
 
     /**
@@ -52,7 +53,7 @@ export class OffsetLinkConstraint {
         const world_2 = b2.localToWorld(this.r2);
 
         const dist2 = Vector2.sqr_distance(world_1, world_2);
-        const C = dist2 - this.l0 ** 2;
+        this.C = dist2 - this.l0 ** 2;
         this.n = Vector2.scale(1 / Math.sqrt(dist2), Vector2.sub(world_2, world_1));
 
         const delta_a = Vector2.sub(world_2, world_1);
@@ -75,7 +76,7 @@ export class OffsetLinkConstraint {
         const w_1 = (dC_dx1 * dC_dx1 + dC_dy1 * dC_dy1) / b1.mass + (dC_dtheta1 * dC_dtheta1) / b1.I;
         const w_2 = (dC_dx2 * dC_dx2 + dC_dy2 * dC_dy2) / b2.mass + (dC_dtheta2 * dC_dtheta2) / b2.I;
 
-        this.lambda = -C / (w_1 + w_2 + k);
+        this.lambda = -this.C / (w_1 + w_2 + k);
 
         const delta_p1 = Vector2.scale(this.lambda / b1.mass, new Vector2(dC_dx1, dC_dy1));
         const delta_p2 = Vector2.scale(this.lambda / b2.mass, new Vector2(dC_dx2, dC_dy2));
@@ -138,6 +139,7 @@ export class PrismaticYConstraint {
 
         this.lambda = null;
         this.n = new Vector2(0, 1);
+        this.C = null;
     }
 
     solve(bodies) {
@@ -148,12 +150,12 @@ export class PrismaticYConstraint {
 
         const world_y = b.pos.y + this.r.x * Math.sin(b.theta) + this.r.y * Math.cos(b.theta);
 
-        const C = world_y - this.y0;
+        this.C = world_y - this.y0;
         const dC_dtheta = this.r.x * Math.cos(b.theta) - this.r.y * Math.sin(b.theta);
 
         const w = (1 / b.mass) + dC_dtheta * dC_dtheta / b.I;
 
-        this.lambda = - C / (w + k);
+        this.lambda = - this.C / (w + k);
 
         b.pos = Vector2.add(b.pos, Vector2.scale(this.lambda / b.mass, this.n));
         b.theta += this.lambda * dC_dtheta / b.I;
@@ -215,6 +217,112 @@ export class PrismaticYConstraint {
         Render.arc(ball_3, small_rad, true, true);
         Render.arc(ball_4, small_rad, true, true);
         Render.arc(ball_5, small_rad, true, true);
+
+    }
+
+}
+
+export class RevoluteJoint {
+    /**
+     * @param {number} alpha Compliancy
+     * @param {*} id 
+     * @param {*} r Offset LOCAL-SPACE
+     * @param {*} y0 Target y-value
+     */
+    constructor(alpha, id1, id2, r1, r2) {
+        this.alpha = alpha; 
+
+        this.id1 = id1;
+        this.id2 = id2;
+        this.r1 = r1;
+        this.r2 = r2;
+
+        this.lambda = null;
+        this.n = new Vector2(0, 1);
+        this.C = null;
+    }
+
+    solve(bodies) {
+        const sub_dt = PhysicsSystem.dt / PhysicsSystem.sub_steps;
+        const k = this.alpha / (sub_dt * sub_dt)
+
+        const body1 = bodies[this.id1];
+        const body2 = bodies[this.id2];
+
+        console.log("b1 pos", body1.pos.toString());
+        console.log("b2 pos", body2.pos.toString());
+
+        const a_p1 = body1.localToWorld(this.r1);
+        const a_p2 = body2.localToWorld(this.r2);
+
+        const ax = a_p2.x;
+        const bx = - a_p1.x;
+        const cx = this.r2.x * Math.cos(body2.theta);
+        const dx = this.r1.x * Math.cos(body1.theta);
+        const term_x = ax * ax + bx * bx + cx * cx + dx * dx
+                       + 2 * (ax*bx + ax*cx + ax*dx + bx*cx + bx*dx + cx*dx);
+
+        const ay = a_p2.y;
+        const by = - a_p1.y;
+        const cy = this.r2.y * Math.sin(body2.theta);
+        const dy = this.r1.y * Math.sin(body1.theta);
+        const term_y = ay * ay + by * by + cy * cy + dy * dy
+                       + 2 * (ay*by + ay*cy + ay*dy + by*cy + by*dy + cy*dy);
+            
+        this.C = term_x + term_y;
+
+        const dC_dx1 = (-2 * a_p1.x) + 2 * (-ax - cx - dx);
+        const dC_dy1 = (-2 * a_p1.y) + 2 * (-ay - cy - dy);
+        const d_cos_1 = this.r1.x * Math.sin(body1.theta);
+        const d_sin_1 = - this.r1.y * Math.cos(body1.theta);
+        const dC_dtheta1_x = 2 * d_cos_1 * dx + ax*d_cos_1 + bx*d_cos_1 + cx*d_cos_1;
+        const dC_dtheta1_y = 2 * d_sin_1 * dy + ay*d_sin_1 + by*d_sin_1 + cy*d_sin_1;
+        const dC_dtheta1 = dC_dtheta1_x + dC_dtheta1_y;
+
+        const dC_dx2 = (2 * a_p2.x) + 2 * (bx + cx + dx);
+        const dC_dy2 = (2 * a_p2.y) + 2 * (by + cy + dy);
+        const d_cos_2 = - this.r2.x * Math.sin(body2.theta);
+        const d_sin_2 = this.r2.y * Math.cos(body2.theta);
+        const dC_dtheta2_x = 2 * d_cos_2 * cx + ax*d_cos_2 + bx*d_cos_2 + dx*d_cos_2;
+        const dC_dtheta2_y = 2 * d_sin_2 * cy + ay*d_sin_2 + by*d_sin_2 + dy*d_sin_2;
+        const dC_dtheta2 = dC_dtheta2_x + dC_dtheta2_y;
+        
+        this.n.set(Vector2.sub(a_p2, a_p1).normalize());
+
+        const w_1 = (dC_dx1 * dC_dx1 + dC_dy1 * dC_dy1) / body1.mass + (dC_dtheta1 * dC_dtheta1) / body1.I;
+        const w_2 = (dC_dx2 * dC_dx2 + dC_dy2 * dC_dy2) / body2.mass + (dC_dtheta2 * dC_dtheta2) / body2.I;
+        
+        this.lambda = -this.C / (w_1 + w_2 + k);
+
+        const delta_p1 = Vector2.scale(this.lambda / body1.mass, new Vector2(dC_dx1, dC_dy1));
+        const delta_p2 = Vector2.scale(this.lambda / body2.mass, new Vector2(dC_dx2, dC_dy2));
+
+        body1.pos.set(Vector2.add(body1.pos, delta_p1));
+        body2.pos.set(Vector2.add(body2.pos, delta_p2));
+        
+        body1.theta += this.lambda * dC_dtheta1 / body1.I;
+        body2.theta += this.lambda * dC_dtheta2 / body2.I;
+
+    }
+
+    getConstraintForce() {
+        const sub_dt = PhysicsSystem.dt / PhysicsSystem.sub_steps;
+        return Vector2.scale(this.lambda / (sub_dt * sub_dt), this.n);
+    }
+
+    render(bodies) {
+        const body1 = bodies[this.id1];
+        const body2 = bodies[this.id2];
+
+        const a1 = body1.localToWorld(this.r1);
+        const a2 = body2.localToWorld(this.r2);
+
+        Render.c.fillStyle = "#ff0000";
+        Render.c.strokeStyle = "#00ff00";
+        Render.c.lineWidth = 0.02 * Units.mult_s2c;
+        Render.arc(a1, 0.04, false, true);
+        Render.arc(a2, 0.04, false, true);
+        Render.line(a1, a2);
 
     }
 

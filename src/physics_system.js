@@ -3,26 +3,27 @@ import { Vector2 } from "./utils/math.js";
 import {Gravity, EnergyDamping, MouseSpring, SpringJoint} from "./force_generators.js";
 
 import { User } from "./user.js";
-import { OffsetLinkConstraint, PrismaticYConstraint } from "./constraints.js";
+import { OffsetLinkConstraint, PrismaticYConstraint, RevoluteJoint } from "./constraints.js";
+import { RigidBody } from "./rigid_body.js";
 
 export class PhysicsSystem {
 
     static EPS = 1E-8;
 
+    static sub_steps = 1;
     static dt = 1 / 120;
     static pdt = -1;
     static rdt = -1;
-    static sub_steps = 1;
-
     static energy = 0;
+    static c_eval = 0;
 
     static simulating = false;
 
     // constants
     static GRAVITY = 9.82;
     static ENERGY_DAMP_MU = 0E-1;
-    static SPRING_JOINT_STIFFNESS = 10;
-    static MOUSESPRING_JOINT_STIFFNESS = 10;
+    static SPRING_JOINT_STIFFNESS = 20;
+    static MOUSESPRING_JOINT_STIFFNESS = 20;
 
     // static objects
     static mouse_spring = new MouseSpring();
@@ -175,7 +176,7 @@ export class PhysicsSystem {
      * @param {number} id 
      * @param {Vector2} r 
      */
-    addPrismaticConstraint(alpha, type, id, r) {
+    addPrismaticJoint(alpha, type, id, r) {
         switch (type) {
             case "y":
                 this.constraints.push(new PrismaticYConstraint(alpha, id, r, this.bodies[id].pos.y + r.y));
@@ -184,15 +185,50 @@ export class PhysicsSystem {
 
     }
 
-    getRigidBodyInfoContainingPoint(point) {
-        for (let i = 0; i < this.bodies.length; i++) {
+    addRevoluteJoint(alpha, id1, id2, r1, r2) {
+        this.constraints.push(new RevoluteJoint(alpha, id1, id2, r1, r2));
+    }
+
+    /**
+     * If se
+     * @param {Vector2} point 
+     * @param {boolean} search_through_bodies If it searches through bodies underneatch current one
+     * @returns {{id: number, body: RigidBody}} If not found, returns "false"
+     */
+    getRigidBodyInfoContainingPoint(point, search_through_bodies = false) {
+        const infos = [];
+        for (let i = this.bodies.length - 1; i >= 0; i--) {
             const body = this.bodies[i];
             if (body.pointIsInside(point))
-                return {id: i, body: body};
+                infos.push({id: i, body: body});
+                if (!search_through_bodies || infos.length == 2) return infos;
+                else infos.push({id: i, body: body});
         }
+
+        if (search_through_bodies) return infos;
 
         return false;
 
+    }
+
+    /**
+     * 
+     * @returns {boolean} Is the system populated or not
+     */
+    isDefault() {
+        return this.bodies.length === 0 && this.constraints.length === 0;
+    }
+
+    /**
+     * 
+     * @returns {number} Sum of squares of individual constraints C
+     */
+    getSumOfConstraints() {
+        let C = 0;
+        for (let i = 0; i < this.constraints.length; i++) {
+            C += this.constraints[i].C ** 2;
+        }
+        return C;
     }
 
 }

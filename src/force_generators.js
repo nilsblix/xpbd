@@ -327,7 +327,7 @@ export class MouseSpring {
             Render.c.lineWidth = (RenderConstants.spring_joint_segment_width + 2 * LineWidths.lines_outlines) * Units.mult_s2c;
             Render.line(seg_start, seg_end);
 
-            Render.c.strokeStyle = Colors.spring_joint;
+            Render.c.strokeStyle = "#999999";// Colors.spring_joint;
             Render.c.lineWidth = (RenderConstants.spring_joint_segment_width) * Units.mult_s2c;
             Render.line(seg_start, seg_end);
         }
