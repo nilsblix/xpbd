@@ -230,7 +230,7 @@ export class PhysicsSystem {
         for (let i = 0; i < this.constraints.length; i++) {
             C += this.constraints[i].C ** 2;
         }
-        return C;
+        return Math.sqrt(C);
     }
 
 }

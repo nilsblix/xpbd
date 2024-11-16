@@ -91,7 +91,7 @@
         <div class="gui-grid-label">
             <div class="gui-column">
                 <p class="gui-split-label-left">Spring Joint Stiffness (k), 20</p>
-                <p class="gui-split-label-right">[N / m^2]</p>
+                <p class="gui-split-label-right">[N / m]</p>
             </div>
         </div>
         <div class="gui-slider-container">
@@ -102,7 +102,7 @@
         <div class="gui-grid-label">
             <div class="gui-column">
                 <p class="gui-split-label-left">Mouse Spring Stiffness (k), 20</p>
-                <p class="gui-split-label-right">[N / m^2]</p>
+                <p class="gui-split-label-right">[N / m]</p>
             </div>
         </div>
         <div class="gui-slider-container">
@@ -123,7 +123,7 @@
             <p> PDT = <span id="profiling-pdt">-1</span> ms</p>
             <p> RDT = <span id="profiling-rdt">-1</span> ms</p>
             <p> Energy = <span id="profiling-energy">-1</span> J</p>
-            <p> C-Eval = <span id="profiling-c-eval">-1</span></p>
+            <p> C-Eval = <span id="profiling-c-eval">-1</span> μ</p>
         </div>
 
     </div>
@@ -142,13 +142,20 @@
         <div class="gui-grid-label">
             <div class="gui-column">
                 <p class="gui-split-label-left">Sub Steps</p>
-                <p class="gui-split-label-right">Less steps => More energy loss</p>
+                <p class="gui-split-label-right">Less steps => More natural energy loss</p>
             </div>
         </div>
         <div class="gui-slider-container">
             <input id="info-sub-steps-slider" class="gui-slider" type="range" min="1" max="20" step="1" value="10">
             <div id="info-sub-steps-value" class="gui-slider-label">10</div>
         </div>
+
+        <div class="gui-label">
+            <p> Num Rigidbodies = <span id="info-num-rigidbodies">-0</span></p>
+            <p> Num Force Generators = <span id="info-num-force-generators">-0</span></p>
+            <p> Num Constraints = <span id="info-num-constraints">-0</span></p>
+        </div>
+
     </div>
 
     <div id="editor-window" class="gui-window" style="width: 300px">
@@ -190,12 +197,12 @@
 
         <div class="gui-grid-label">
             <div class="gui-column">
-                <p class="gui-split-label-left">Constraint Compliance</p>
+                <p class="gui-split-label-left">Constraint Compliance [μ]</p>
                 <p class="gui-split-label-right">0.0 => Infinite stiffness (default)</p>
             </div>
         </div>
         <div class="gui-slider-container">
-            <input id="editor-constraint-compliance-slider" class="gui-slider" type="range" min="0" max="0.05" step="0.001" value="0">
+            <input id="editor-constraint-compliance-slider" class="gui-slider" type="range" min="0" max="0.5" step="0.005" value="0">
             <div id="editor-constraint-compliance-value" class="gui-slider-label">0</div>
         </div>
         

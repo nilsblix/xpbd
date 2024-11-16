@@ -158,22 +158,25 @@ export function initGUIWindows() {
     editor_window.init();
 }
 
-export function updateGUI() {
-    updateDisplayedDebugs();
+export function updateGUI(psystem) {
+    updateDisplayedDebugs(psystem);
     updateChangedUserData();
 }
 
-function updateDisplayedDebugs() {
+function updateDisplayedDebugs(psystem) {
     // profiling
     document.getElementById("profiling-dt").innerHTML = (PhysicsSystem.dt * 1E3).toFixed(3);
     document.getElementById("profiling-pdt").innerHTML = (PhysicsSystem.pdt * 1E3).toFixed(3);
     document.getElementById("profiling-rdt").innerHTML = (PhysicsSystem.rdt * 1E3).toFixed(3);
     document.getElementById("profiling-energy").innerHTML = (PhysicsSystem.energy).toFixed(3);
-    document.getElementById("profiling-c-eval").innerHTML = (PhysicsSystem.c_eval).toFixed(5);
+    document.getElementById("profiling-c-eval").innerHTML = (1E6 * PhysicsSystem.c_eval).toFixed(5);
 
     // info
     document.getElementById("info-framerate").innerHTML = (1 / PhysicsSystem.dt).toFixed(0);
     document.getElementById("info-simrate").innerHTML = (PhysicsSystem.sub_steps * 1 / PhysicsSystem.dt).toFixed(0);
+    document.getElementById("info-num-rigidbodies").innerHTML = psystem.bodies.length;
+    document.getElementById("info-num-force-generators").innerHTML = psystem.force_generators.length;
+    document.getElementById("info-num-constraints").innerHTML = psystem.constraints.length;
 
 }
 
@@ -207,7 +210,7 @@ function updateChangedUserData() {
     // }
 
     editor.standard.mass = document.getElementById("editor-mass-slider").value;
-    editor.spawner.constraint_alpha = document.getElementById("editor-constraint-compliance-slider").value;
+    editor.spawner.constraint_alpha = 1E-6 * document.getElementById("editor-constraint-compliance-slider").value;
 
     
 

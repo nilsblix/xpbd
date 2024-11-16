@@ -307,27 +307,6 @@ export class PrismaticPosConstraint {
         Render.c.lineWidth = LineWidths.fixed_constraints_lines * Units.mult_s2c;
         Render.line(horizontal_1, horizontal_4);
 
-        // START OF REAL FIXED Y. What came before was essentially fixed pos constraint
-
-        // const fix = (LineWidths.fixed_constraints_lines);
-
-        // const small_rad = rad / 1.5;
-        // const ball_1 = Vector2.add(horizontal_1, new Vector2(  small_rad, -small_rad - fix));
-        // const ball_2 = Vector2.add(horizontal_2, new Vector2(  0.5 * small_rad, -small_rad - fix));
-        // const ball_3 = Vector2.add(horizontal_middle, new Vector2(0.0, -small_rad - fix));
-        // const ball_4 = Vector2.add(horizontal_3, new Vector2(-  0.5 * small_rad, -small_rad - fix));
-        // const ball_5 = Vector2.add(horizontal_4, new Vector2(-  small_rad, -small_rad - fix));
-
-        // Render.c.strokeStyle = Colors.outlines;
-        // Render.c.fillStyle = Colors.fixed_y_constraint;
-        // Render.c.lineWidth = LineWidths.fixed_constraints_outlines * Units.mult_s2c;
-
-        // Render.arc(ball_1, small_rad, true, true);
-        // Render.arc(ball_2, small_rad, true, true);
-        // Render.arc(ball_3, small_rad, true, true);
-        // Render.arc(ball_4, small_rad, true, true);
-        // Render.arc(ball_5, small_rad, true, true);
-
     }
 }
 
@@ -403,28 +382,36 @@ export class RevoluteJoint {
         const a2 = body2.localToWorld(this.r2);
         const a = Vector2.scale(1 / 2, Vector2.add(a1, a2));
 
-        const vert_1 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.down));
-        const vert_2 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.up));
-
-        const hor_1 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.left));
-        const hor_2 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.right));
-
-        vert_1.set(Vector2.rotateAroundPoint(vert_1, body1.theta, a));
-        vert_2.set(Vector2.rotateAroundPoint(vert_2, body1.theta, a));
-        hor_1.set(Vector2.rotateAroundPoint(hor_1, body1.theta, a));
-        hor_2.set(Vector2.rotateAroundPoint(hor_2, body1.theta, a));
-
-        // Outer
-        Render.c.lineWidth = (LineWidths.revolute_joint + LineWidths.lines_outlines) * Units.mult_s2c;
+        Render.c.lineWidth = (LineWidths.revolute_joint) * Units.mult_s2c;
         Render.c.strokeStyle = Colors.outlines;
-        Render.line(vert_1, vert_2);
-        Render.line(hor_1, hor_2);
+        Render.c.fillStyle = Colors.revolute_joint;
+        Render.arc(a, RenderConstants.revolute_joint_radius, true, true);
 
-        // Inner
-        Render.c.lineWidth = LineWidths.revolute_joint * Units.mult_s2c;
-        Render.c.strokeStyle = Colors.revolute_joint;
-        Render.line(vert_1, vert_2);
-        Render.line(hor_1, hor_2);
+        Render.c.fillStyle = Colors.outlines;
+        Render.arc(a, RenderConstants.revolute_joint_radius / 3, true, true);
+
+        // const vert_1 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.down));
+        // const vert_2 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.up));
+
+        // const hor_1 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.left));
+        // const hor_2 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.right));
+
+        // vert_1.set(Vector2.rotateAroundPoint(vert_1, body1.theta, a));
+        // vert_2.set(Vector2.rotateAroundPoint(vert_2, body1.theta, a));
+        // hor_1.set(Vector2.rotateAroundPoint(hor_1, body1.theta, a));
+        // hor_2.set(Vector2.rotateAroundPoint(hor_2, body1.theta, a));
+
+        // // Outer
+        // Render.c.lineWidth = (LineWidths.revolute_joint + LineWidths.lines_outlines) * Units.mult_s2c;
+        // Render.c.strokeStyle = Colors.outlines;
+        // Render.line(vert_1, vert_2);
+        // Render.line(hor_1, hor_2);
+
+        // // Inner
+        // Render.c.lineWidth = LineWidths.revolute_joint * Units.mult_s2c;
+        // Render.c.strokeStyle = Colors.revolute_joint;
+        // Render.line(vert_1, vert_2);
+        // Render.line(hor_1, hor_2);
 
     }
 

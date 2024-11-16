@@ -24,7 +24,7 @@ export const LineWidths = {
     fixed_constraints_outlines: 0.01,
     fixed_constraints_lines: 0.02,
     spring_joint_horizontal_line: 0.05,
-    revolute_joint: 0.02,
+    revolute_joint: 0.005,
 }
 
 export const RenderConstants = {
@@ -34,5 +34,5 @@ export const RenderConstants = {
     spring_joint_box_radius: 0.02,
     spring_joint_spring_width: 0.4,
     spring_joint_segment_width: 0.04,
-    revolute_joint_line_length: 0.15,
+    revolute_joint_radius: 0.03,
 }
