@@ -222,13 +222,116 @@ export class PrismaticYConstraint {
 
 }
 
-export class RevoluteJoint {
+export class PrismaticPosConstraint {
     /**
      * @param {number} alpha Compliancy
-     * @param {*} id 
-     * @param {*} r Offset LOCAL-SPACE
-     * @param {*} y0 Target y-value
+     * @param {number} id 
+     * @param {Vector2} r Offset LOCAL-SPACE
+     * @param {Vector2} p0 Target position
      */
+    constructor(alpha, id, r, p0) {
+        this.alpha = alpha; 
+
+        this.id = id;
+        this.r = r;
+        this.p0 = p0;
+
+        this.lambda = null;
+        this.n = Vector2.zero.clone();
+        this.C = null;
+    }
+
+    solve(bodies) {
+        const sub_dt = PhysicsSystem.dt / PhysicsSystem.sub_steps;
+        const k = this.alpha / (sub_dt * sub_dt)
+
+        const b = bodies[this.id];
+
+        const a = b.localToWorld(this.r);
+
+        const delta_x = a.x - this.p0.x;
+        const delta_y = a.y - this.p0.y;
+
+        this.C = delta_x * delta_x + delta_y * delta_y;
+        if (this.C < PhysicsSystem.EPS) return;
+
+        const dC_dx = 2 * delta_x;
+        const dC_dy = 2 * delta_y;
+        const dC_dtheta = 2 * delta_x * (-this.r.x * Math.sin(b.theta) - this.r.y * Math.cos(b.theta))
+                        + 2 * delta_y * ( this.r.x * Math.cos(b.theta) - this.r.y * Math.sin(b.theta));
+
+        const w = (dC_dx * dC_dx + dC_dy * dC_dy) / b.mass + dC_dtheta * dC_dtheta / b.I;
+
+        this.lambda = - this.C / (w + k);
+
+        this.n.set(new Vector2(dC_dx, dC_dy));
+        b.pos = Vector2.add(b.pos, Vector2.scale(this.lambda / b.mass, this.n));
+        b.theta += this.lambda * dC_dtheta / b.I;
+
+        this.n.set(this.n.normalize());
+    }
+
+    getConstraintForce() {
+        const sub_dt = PhysicsSystem.dt / PhysicsSystem.sub_steps;
+        return Vector2.scale(this.lambda / (sub_dt * sub_dt), this.n);
+    }
+
+    render(bodies) {
+        const b = bodies[this.id];
+
+        const applied = b.localToWorld(this.r);
+        const rad = LineWidths.fixed_y_constraint_rad;
+
+        Render.c.fillStyle = Colors.fixed_y_constraint;
+        Render.c.strokeStyle = Colors.outlines;
+        Render.c.lineWidth = LineWidths.fixed_constraints_outlines * Units.mult_s2c;
+
+        Render.rect(Vector2.sub(applied, new Vector2(rad, 2 * rad)), new Vector2(2 * rad, 2 * rad), true, true);
+        Render.arc(applied, rad, true, true);
+        Render.c.fillStyle = Colors.outlines;
+        Render.arc(applied, rad / 4, true, true);
+
+        // 1 2 middle 3 4
+        const horizontal_middle = Vector2.add(applied, new Vector2(0.0, -2 * rad));
+        const horizontal_1 = Vector2.add(horizontal_middle, new Vector2(- 4 * rad, 0.0));
+        // const horizontal_2 = Vector2.add(horizontal_middle, new Vector2(- 2 * rad, 0.0));
+        // const horizontal_3 = Vector2.add(horizontal_middle, new Vector2(  2 * rad, 0.0));
+        const horizontal_4 = Vector2.add(horizontal_middle, new Vector2(  4 * rad, 0.0));
+
+        Render.c.lineCap = "round";
+        Render.c.strokeStyle = Colors.outlines;
+        Render.c.lineWidth = (LineWidths.fixed_constraints_lines + 2 * LineWidths.fixed_constraints_outlines) * Units.mult_s2c;
+        Render.line(horizontal_1, horizontal_4);
+
+        Render.c.strokeStyle = Colors.fixed_y_constraint;
+        Render.c.lineWidth = LineWidths.fixed_constraints_lines * Units.mult_s2c;
+        Render.line(horizontal_1, horizontal_4);
+
+        // START OF REAL FIXED Y. What came before was essentially fixed pos constraint
+
+        // const fix = (LineWidths.fixed_constraints_lines);
+
+        // const small_rad = rad / 1.5;
+        // const ball_1 = Vector2.add(horizontal_1, new Vector2(  small_rad, -small_rad - fix));
+        // const ball_2 = Vector2.add(horizontal_2, new Vector2(  0.5 * small_rad, -small_rad - fix));
+        // const ball_3 = Vector2.add(horizontal_middle, new Vector2(0.0, -small_rad - fix));
+        // const ball_4 = Vector2.add(horizontal_3, new Vector2(-  0.5 * small_rad, -small_rad - fix));
+        // const ball_5 = Vector2.add(horizontal_4, new Vector2(-  small_rad, -small_rad - fix));
+
+        // Render.c.strokeStyle = Colors.outlines;
+        // Render.c.fillStyle = Colors.fixed_y_constraint;
+        // Render.c.lineWidth = LineWidths.fixed_constraints_outlines * Units.mult_s2c;
+
+        // Render.arc(ball_1, small_rad, true, true);
+        // Render.arc(ball_2, small_rad, true, true);
+        // Render.arc(ball_3, small_rad, true, true);
+        // Render.arc(ball_4, small_rad, true, true);
+        // Render.arc(ball_5, small_rad, true, true);
+
+    }
+}
+
+export class RevoluteJoint {
     constructor(alpha, id1, id2, r1, r2) {
         this.alpha = alpha; 
 
@@ -267,6 +370,8 @@ export class RevoluteJoint {
         const dC_dy2 = -2 * delta_y;
         const dC_dtheta2 = 2*delta_x * ( Math.sin(body2.theta) * this.r2.x + Math.cos(body2.theta) * this.r2.y)
                          + 2*delta_y * (-Math.cos(body2.theta) * this.r2.x + Math.sin(body2.theta) * this.r2.y);
+
+        this.n.set(new Vector2(dC_dx1, dC_dy1).normalize());
 
         const w_1 = (dC_dx1 * dC_dx1 + dC_dy1 * dC_dy1) / body1.mass + (dC_dtheta1 * dC_dtheta1) / body1.I;
         const w_2 = (dC_dx2 * dC_dx2 + dC_dy2 * dC_dy2) / body2.mass + (dC_dtheta2 * dC_dtheta2) / body2.I;

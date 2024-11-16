@@ -50,7 +50,9 @@ export function update(canvas) {
         Render.c.clearRect(0, 0, canvas.width, canvas.height);
         Render.renderBackground();
         psystem.render();
-        editor.render(psystem);
+        if (editor.active) {
+            editor.render(psystem);
+        }
     });
     PhysicsSystem.rdt = render_timer.dt;
 
@@ -137,6 +139,17 @@ function handleEventsOnInput() {
             key: "4",
             onkeydown: (e) => {
                 if (editor.active) {
+                    editor.spawner.typeof_joint = "prismatic-pos";
+                    document.getElementById("editor-joint-type").innerHTML = "Prismatic-Pos";
+                    return;
+                }
+            },
+            onkeyup: null,
+        },
+        {
+            key: "5",
+            onkeydown: (e) => {
+                if (editor.active) {
                     editor.spawner.typeof_joint = "revolute";
                     document.getElementById("editor-joint-type").innerHTML = "Revolute";
                     return;
@@ -149,6 +162,14 @@ function handleEventsOnInput() {
             onkeydown: (e) => {
                 editor.spawning_rigidbody = false;
                 editor.spawning_joint = false;
+            },
+            onkeyup: null,
+        },
+        {
+            key: "g",
+            onkeydown: (e) => {
+                if (!editor.active) return;
+                editor.snap_to_grid = !editor.snap_to_grid;
             },
             onkeyup: null,
         },
@@ -233,6 +254,8 @@ function handleEventsOnInput() {
                     case "prismatic-y":
                         editor.spawnPrismaticJoint(psystem, "y", info[0].id, r);
                         break;
+                    case "prismatic-pos":
+                        editor.spawnPrismaticJoint(psystem, "pos", info[0].id, r);
                     case "revolute":
                         if (info.length <= 1) return;
                         editor.spawnJoint(psystem, "revolute", info[0].id, info[1].id, r, r2);
@@ -273,5 +296,15 @@ function handleEventsOnInput() {
 
             },
         },
+        {
+            key: "H",
+            onkeydown: (e) => {
+                if (!editor.active) return;
+                editor.spawnRagdoll(psystem);
+            },
+            onkeyup: null,
+        },
+
+
     ]);
 }

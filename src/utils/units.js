@@ -89,7 +89,7 @@ export class Units {
      * @returns {number}
      */
     static snap_to_grid_x(pos) {
-        const l_x = 2 * this.render_num_lines_x;
+        const l_x = 2 * this.NUM_LINES.x;
         const x = pos.x + 0.5 * this.WIDTH / l_x;
         return this.WIDTH / l_x * Math.floor(l_x / this.WIDTH * x);
     }
@@ -99,7 +99,7 @@ export class Units {
      * @returns {number}
      */
     static snap_to_grid_y(pos) {
-        const l_y = 2 * this.render_num_lines_y;
+        const l_y = 2 * this.NUM_LINES.y;
         const y = pos.y + 0.5 * this.HEIGHT / l_y;
         return this.HEIGHT / l_y * Math.floor(l_y / this.HEIGHT * y);
     }

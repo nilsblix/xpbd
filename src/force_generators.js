@@ -42,7 +42,7 @@ export class EnergyDamping {
     apply(bodies) {
         for (let i = 0; i < bodies.length; i++) {
             bodies[i].force = Vector2.sub(bodies[i].force, Vector2.scale(PhysicsSystem.ENERGY_DAMP_MU, bodies[i].vel));
-            bodies[i].tau -= 0.01 * PhysicsSystem.ENERGY_DAMP_MU * bodies[i].omega;
+            bodies[i].tau -= 0.1 * PhysicsSystem.ENERGY_DAMP_MU * bodies[i].omega;
         }
     }
 

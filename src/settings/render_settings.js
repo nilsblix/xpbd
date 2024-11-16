@@ -1,9 +1,10 @@
 export const Colors = {
+    editor_mouse: "#f55742",
     outlines: "#000000",
     hologramic_spawning: "#87cfff99",
-    hologramic_spawning_outline: "#1c73adcc",
+    hologramic_spawning_outline: "#1c73ad",
     disc_body: "#fac943",
-    rect_body: "#f06b2e",
+    rect_body: "#a15ed1",
     link_constraint: "#ffffff",
     fixed_y_constraint: "#ffffff",
     bodies_bounding_box: "#00ff00",
@@ -16,8 +17,8 @@ export const Colors = {
  */
 export const LineWidths = {
     lines_outlines: 0.01,
-    hologramic_outline: 0.08,
-    bodies: 0.02,
+    hologramic_outline: 0.03,
+    bodies: 0.01,
     link_constraint: 0.04,
     fixed_y_constraint_rad: 0.05,
     fixed_constraints_outlines: 0.01,

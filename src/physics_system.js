@@ -3,7 +3,7 @@ import { Vector2 } from "./utils/math.js";
 import {Gravity, EnergyDamping, MouseSpring, SpringJoint} from "./force_generators.js";
 
 import { User } from "./user.js";
-import { OffsetLinkConstraint, PrismaticYConstraint, RevoluteJoint } from "./constraints.js";
+import { OffsetLinkConstraint, PrismaticYConstraint, PrismaticPosConstraint,  RevoluteJoint } from "./constraints.js";
 import { RigidBody } from "./rigid_body.js";
 
 export class PhysicsSystem {
@@ -180,6 +180,9 @@ export class PhysicsSystem {
         switch (type) {
             case "y":
                 this.constraints.push(new PrismaticYConstraint(alpha, id, r, this.bodies[id].pos.y + r.y));
+                break;
+            case "pos":
+                this.constraints.push(new PrismaticPosConstraint(alpha, id, r, Vector2.add(this.bodies[id].pos, r)));
                 break;
         }
 

@@ -5,6 +5,7 @@ import { PhysicsSystem } from "./physics_system.js";
 import { Render } from "./utils/render.js";
 import { Colors, LineWidths, RenderConstants } from "./settings/render_settings.js";
 import { Units } from "./utils/units.js";
+import { OffsetLinkConstraint, RevoluteJoint } from "./constraints.js";
 
 export const editor = {
     active: false,
@@ -85,6 +86,72 @@ export const editor = {
         }
     },
 
+    spawnRagdoll(psystem) {
+        const id_off = psystem.bodies.length;
+
+        const alpha = 0.0;
+
+        const ol = 0.03 // overlapp
+
+        const headpos = (this.snap_to_grid ? User.mouse.grid_sim_pos : User.mouse.sim_pos).clone();
+        const r_head = 0.2;
+        const neck = 0.08;
+
+        const th = 0.7;
+        const tw = 0.4;
+        const tpos = Vector2.add(headpos, new Vector2(0, -r_head - neck - th/2));
+
+        const lw = 0.15;
+        const lh = 0.8;
+        const l1pos = Vector2.add(tpos, new Vector2(-tw/2 + lw/2, - th/2 - lh/2 + ol));
+        const l2pos = Vector2.add(tpos, new Vector2(tw/2 - lw/2, - th/2 - lh/2 + ol));
+
+        const aw = 0.6;
+        const ah = 0.12;
+        const a1pos = Vector2.add(tpos, new Vector2(-tw/2 - aw/2 + ol, th/2 - ah/2));
+        const a2pos = Vector2.add(tpos, new Vector2(tw/2 + aw/2 - ol, th/2 - ah/2));
+
+        const head = new RigidBody(headpos, 1, {type: "disc", radius: r_head});
+        const torso = new RigidBody(tpos, 1, {type: "rect", width: tw, height: th});
+        const leg1 = new RigidBody(l1pos, 1, {type: "rect", width: lw, height: lh});
+        const leg2 = new RigidBody(l2pos, 1, {type: "rect", width: lw, height: lh});
+        const arm1 = new RigidBody(a1pos, 1, {type: "rect", width: aw, height: ah});
+        const arm2 = new RigidBody(a2pos, 1, {type: "rect", width: aw, height: ah});
+
+        psystem.bodies.push(head);
+        psystem.bodies.push(torso);
+        psystem.bodies.push(leg1);
+        psystem.bodies.push(leg2);
+        psystem.bodies.push(arm1);
+        psystem.bodies.push(arm2);
+
+        const rev_t_l1_p = Vector2.add(l1pos, new Vector2(0, lh/2 - ol/2));
+        const rev_torso_leg1 = new RevoluteJoint(alpha, id_off + 1, id_off + 2, torso.worldToLocal(rev_t_l1_p), leg1.worldToLocal(rev_t_l1_p));
+        
+        const rev_t_l2_p = Vector2.add(l2pos, new Vector2(0, lh/2 - ol/2));
+        const rev_torso_leg2 = new RevoluteJoint(alpha, id_off + 1, id_off + 3, torso.worldToLocal(rev_t_l2_p), leg2.worldToLocal(rev_t_l2_p));
+
+        const rev_t_a1_p = Vector2.add(a1pos, new Vector2(aw/2 - ol/2, 0));
+        const rev_torso_arm1 = new RevoluteJoint(alpha, id_off + 1, id_off + 4, torso.worldToLocal(rev_t_a1_p), arm1.worldToLocal(rev_t_a1_p));
+
+        const rev_t_a2_p = Vector2.add(a2pos, new Vector2(- aw/2 + ol/2, 0));
+        const rev_torso_arm2 = new RevoluteJoint(alpha, id_off + 1, id_off + 5, torso.worldToLocal(rev_t_a2_p), arm2.worldToLocal(rev_t_a2_p));
+
+        psystem.constraints.push(rev_torso_leg1);
+        psystem.constraints.push(rev_torso_leg2);
+        psystem.constraints.push(rev_torso_arm1);
+        psystem.constraints.push(rev_torso_arm2);
+
+        const link_t_head_p1 = Vector2.add(tpos, new Vector2(-r_head/2, th/2 - ol/2));
+        const link_t_head_p2 = Vector2.add(headpos, new Vector2(- r_head/4, -r_head/4));
+        const link_t_head_p3 = Vector2.add(headpos, new Vector2( r_head/4, -r_head/4));
+        const link_t_head_p4 = Vector2.add(tpos, new Vector2( r_head/2, th/2 - ol/2));
+        psystem.addLinkJoint(alpha, id_off + 1, id_off, torso.worldToLocal(link_t_head_p1), head.worldToLocal(link_t_head_p2));
+        psystem.addLinkJoint(alpha, id_off + 1, id_off, torso.worldToLocal(link_t_head_p4), head.worldToLocal(link_t_head_p3));
+    
+
+    },
+
     update() {
         const pos = this.snap_to_grid ? User.mouse.grid_sim_pos : User.mouse.sim_pos;
         if (this.spawning_rigidbody) {
@@ -101,6 +168,11 @@ export const editor = {
     },
 
     render(psystem) {
+
+        const mouse_pos = this.snap_to_grid ? User.mouse.grid_sim_pos : User.mouse.sim_pos;
+        Render.c.fillStyle = Colors.editor_mouse;
+        Render.arc(mouse_pos, 0.05, false, true);
+
         Render.c.lineWidth = LineWidths.hologramic_outline * Units.mult_s2c;
         Render.c.fillStyle = Colors.hologramic_spawning;
         Render.c.strokeStyle = Colors.hologramic_spawning_outline;
@@ -128,6 +200,7 @@ export const editor = {
                 case "spring":
                     const spring_pos_1 = psystem.bodies[this.preliminary.two_body_joint.id1].localToWorld(this.preliminary.two_body_joint.r1);
                     Render.line(spring_pos_1, User.mouse.sim_pos);
+                    break;
             }
         }
     }
