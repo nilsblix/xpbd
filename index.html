@@ -6,7 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>xpbd</title>
-    <link rel="stylesheet" href="./src/dear-imgui/style.css">
+    <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪩</text></svg>">
+    <link rel="stylesheet" href="./src/dear-imgui/custom_gui.css">
     <style>
         @font-face {
             font-family: "basis33";
@@ -28,9 +30,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            border: 1px solid white;
-            /* width: 99vw;
-            height: 99vh; */
+            /* border: 1px solid white; */
+            outline: 3px solid black;
         }
 
         #paused {
@@ -58,166 +59,108 @@
     <div id="paused">*paused</div>
     <script>document.getElementById("paused").style.display = "block";</script>
 
-    <div id="settings-window" class="gui-window" style="width: 300px">
-        <div id="settings-header" class="gui-header">
-            &nbsp;// PHYSICS SETTINGS
-            <span id="settings-close-button" class="gui-header-close-button">x</span>
-        </div>
+    <div id="settings-window" class="c-window">
+        <div id="settings-header" class="c-header">&nbsp;// PHYSICS SETTINGS</div>
 
-        <p class="gui-primary-header">"Name, default value, [unit]"</p>
+         <div class="c-content">
+            <div class="c-grid" style="grid-template-rows: repeat(9, 30px);">
 
-        <div class="gui-grid-label">
-            <div class="gui-column">
-                <p class="gui-split-label-left">Gravity, 9.82</p>
-                <p class="gui-split-label-right">[m / s^2]</p>
+                <div class="c-primary-header">Name, default-value, [units]</div>
+                <div class="c-label-left">Gravity</div>
+                    <div class="c-label-right">[m / s^2]</div>
+                <input id="settings-gravity-slider" type="range" min="-10" max="10" value="9.82" step="0.01" class="c-slider" />
+                    <div id="settings-gravity-value" class="c-slider-value">9.82</div>
+                
+                <div class="c-label-left">Energy Damping</div>
+                    <div class="c-label-right">[]</div>
+                <input id="settings-energy-damping-slider" type="range" min="0" max="2" value="0.0" step="0.01" class="c-slider" />
+                    <div id="settings-energy-damping-value" class="c-slider-value">0.0</div>  
+                
+                <div class="c-label-left">Spring Stiffness</div>
+                    <div class="c-label-right">[N / m^2]</div>
+                <input id="settings-spring-stiffness-slider" type="range" min="0" max="100" value="20.0" step="0.1" class="c-slider" />
+                    <div id="settings-spring-stiffness-value" class="c-slider-value">20.0</div> 
+                
+                <div class="c-label-left">M. Spring Stiff.</div>
+                    <div class="c-label-right">[N / m^2]</div>
+                <input id="settings-mouse-spring-stiffness-slider" type="range" min="0" max="150" value="20.0" step="0.1" class="c-slider" />
+                    <div id="settings-mouse-spring-stiffness-value" class="c-slider-value">20.0</div> 
+                 
             </div>
         </div>
-        <div class="gui-slider-container">
-            <input id="settings-gravity-slider" class="gui-slider" type="range" min="-10" max="10" step="0.1" value="9.82">
-            <div id="settings-gravity-value" class="gui-slider-label">9.82</div>
-        </div>
-
-        <div class="gui-grid-label">
-            <div class="gui-column">
-                <p class="gui-split-label-left">Energy Damping, &nbsp; 0.0</p>
-                <p class="gui-split-label-right">[]</p>
-            </div>
-        </div>
-        <div class="gui-slider-container">
-            <input id="settings-energy-damping-slider" class="gui-slider" type="range" min="0" max="2" step="0.01" value="0">
-            <div id="settings-energy-damping-value" class="gui-slider-label">0</div>
-        </div>
-
-        <div class="gui-grid-label">
-            <div class="gui-column">
-                <p class="gui-split-label-left">Spring Joint Stiffness (k), 20</p>
-                <p class="gui-split-label-right">[N / m]</p>
-            </div>
-        </div>
-        <div class="gui-slider-container">
-            <input id="settings-spring-joint-stiffness-slider" class="gui-slider" type="range" min="0" max="100" step="0.5" value="20">
-            <div id="settings-spring-joint-stiffness-value" class="gui-slider-label">20</div>
-        </div>
-
-        <div class="gui-grid-label">
-            <div class="gui-column">
-                <p class="gui-split-label-left">Mouse Spring Stiffness (k), 20</p>
-                <p class="gui-split-label-right">[N / m]</p>
-            </div>
-        </div>
-        <div class="gui-slider-container">
-            <input id="settings-mouse-spring-stiffness-slider" class="gui-slider" type="range" min="0" max="150" step="0.5" value="20">
-            <div id="settings-mouse-spring-stiffness-value" class="gui-slider-label">20</div>
-        </div>
-
     </div>
 
-    <div id="profiling-window" class="gui-window" style="width: 300px">
-        <div id="profiling-header" class="gui-header">
-            &nbsp;// PROFILING
-            <span id="profiling-close-button" class="gui-header-close-button">x</span>
-        </div>
+    <div id="profiling-window" class="c-window">
+        <div id="profiling-header" class="c-header">&nbsp;// PROFILING</div>
 
-        <div class="gui-label">
-            <p> DT = <span id="profiling-dt">-1</span> ms</p>
-            <p> PDT = <span id="profiling-pdt">-1</span> ms</p>
-            <p> RDT = <span id="profiling-rdt">-1</span> ms</p>
-            <p> Energy = <span id="profiling-energy">-1</span> J</p>
-            <p> C-Eval = <span id="profiling-c-eval">-1</span> μ</p>
-        </div>
+        <div class="c-content">
+            <div class="c-grid"style="grid-template-rows: repeat(5, 30px); width: 200px;">
 
+                <div class="c-label">DT =&nbsp;<span id="profiling-dt">0.0</span>&nbsp;ms</div>
+                <div class="c-label">PDT =&nbsp;<span id="profiling-pdt">0.0</span>&nbsp;ms</div>
+                <div class="c-label">RDT =&nbsp;<span id="profiling-rdt">0.0</span>&nbsp;ms</div>
+                <div class="c-label">Energy =&nbsp;<span id="profiling-energy">0.0</span>&nbsp;J</div>
+                <div class="c-label">C-Eval =&nbsp;<span id="profiling-c-eval">0.0</span>&nbsp;μ</div>
+
+            </div>
+        </div>
     </div>
 
-    <div id="info-window" class="gui-window" style="width: 300px">
-        <div id="info-header" class="gui-header">
-            &nbsp;// INFO
-            <span id="info-close-button" class="gui-header-close-button">x</span>
-        </div>
+    <div id="info-window" class="c-window">
+        <div id="info-header" class="c-header">&nbsp;// INFO</div>
 
-        <div class="gui-label">
-            <p> FR = <span id="info-framerate">-1</span> Hz</p>
-            <p> SR = <span id="info-simrate">-1</span> Hz</p>
-        </div>
+        <div class="c-content">
+            <div class="c-grid"style="grid-template-rows: repeat(10, 30px); width: 300px;">
 
-        <div class="gui-grid-label">
-            <div class="gui-column">
-                <p class="gui-split-label-left">Sub Steps</p>
-                <p class="gui-split-label-right">Less steps => More natural energy loss</p>
+                <div class="c-secondary-header">Rates:</div>
+                <div class="c-label">FR =&nbsp;<span id="info-framerate">0.0</span>&nbsp;Hz</div>
+                <div class="c-label">SR =&nbsp;<span id="info-simrate">0.0</span>&nbsp;Hz</div>
+
+                <div class="c-secondary-header">SUB STEPS:</div>
+                <div class="c-label-left">Less substeps --></div>
+                    <div class="c-label-right" style="color: white;">More natural energy loss</div>
+                <input id="info-sub-steps-slider" type="range" min="0" max="20" value="10" step="1" class="c-slider" />
+                    <div id="info-sub-steps-value" class="c-slider-value">10</div>
+
+                <div class="c-secondary-header">Num: </div>
+                <div class="c-label">Rigidbodies =&nbsp;<span id="info-num-rigidbodies">0</span></div>
+                <div class="c-label">ForceGenerators =&nbsp;<span id="info-num-force-generators">0</span></div>
+                <div class="c-label">Constraints =&nbsp;<span id="info-num-constraints">0</span></div>
+
             </div>
         </div>
-        <div class="gui-slider-container">
-            <input id="info-sub-steps-slider" class="gui-slider" type="range" min="1" max="20" step="1" value="10">
-            <div id="info-sub-steps-value" class="gui-slider-label">10</div>
-        </div>
-
-        <div class="gui-label">
-            <p> Num Rigidbodies = <span id="info-num-rigidbodies">-0</span></p>
-            <p> Num Force Generators = <span id="info-num-force-generators">-0</span></p>
-            <p> Num Constraints = <span id="info-num-constraints">-0</span></p>
-        </div>
-
     </div>
 
-    <div id="editor-window" class="gui-window" style="width: 300px">
-        <div id="editor-header" class="gui-header">
-            &nbsp;// EDITOR
-            <span id="editor-close-button" class="gui-header-close-button">x</span>
-        </div>
+    <div id="editor-window" class="c-window">
+        <div id="editor-header" class="c-header">&nbsp;// EDITOR</div>
 
-        <div class="gui-label">
-            <p>Active: <span id="editor-active">FALSE</span></p>
-        </div>
+        <div class="c-content">
+            <div class="c-grid"style="grid-template-rows: repeat(11, 30px); width: 300px;">
 
-        <p class="gui-primary-header">Spawner settings</p>
-        <div class="gui-grid-label">
-            <div class="gui-column">
-                <p class="gui-split-label-left">Rigidbody type</p>
-                <p class="gui-split-label-right">1 => Disc, 2 => Rect</p>
+                <div class="c-label">Active:&nbsp;<span id="editor-active">FALSE</span></div>
+
+                <div class="c-primary-header">Spawner Settings: </div>
+                <div class="c-secondary-header">Rigidbody: </div>
+                <!-- rigidbody type -->
+                <div class="c-label-left">Type: </div>
+                    <div class="c-label-right">1: Disc, 2: Rect</div>
+                <input id="editor-rigidbody-type-slider" type="range" min="1" max="2" value="1" step="1" class="c-slider" />
+                    <div id="editor-rigidbody-type-value" class="c-slider-value">1</div>
+                <!-- rigidbody mass -->
+                <div class="c-label-left">Mass: </div>
+                    <div class="c-label-right">[kg]</div>
+                <input id="editor-rigidbody-mass-slider" type="range" min="0" max="32" value="1" step="0.1" class="c-slider" />
+                    <div id="editor-rigidbody-mass-value" class="c-slider-value">1</div>
+                
+                <div class="c-secondary-header">Constraints: </div>
+                <div class="c-label">Joint Type:&nbsp;<span id="editor-joint-type">Link</span></div>
+                <div class="c-label-left">Compliance [μ]: </div>
+                    <div class="c-label-right">0.0 => Infinite stiffness (default)</div>
+                <input id="editor-constraint-compliance-slider" type="range" min="0" max="0.5" value="0.0" step="0.005" class="c-slider" />
+                    <div id="editor-constraint-compliance-value" class="c-slider-value">0.0</div>
+
             </div>
         </div>
-        <div class="gui-slider-container">
-            <input id="editor-rigidbody-type-slider" class="gui-slider" type="range" min="1" max="2" step="1" value="1">
-            <div id="editor-rigidbody-type-value" class="gui-slider-label">1</div>
-        </div>
-
-        <div class="gui-label">
-            <p>Joint type: <span id="editor-joint-type">Spring</span></p>
-        </div>
-
-        <!-- <div class="gui-grid-label">
-            <div class="gui-column">
-                <p class="gui-split-label-left">Joint type</p>
-                <p class="gui-split-label-right">1...4</p>
-            </div>
-        </div>
-        <div class="gui-slider-container">
-            <input id="editor-joint-type-slider" class="gui-slider" type="range" min="1" max="4" step="1" value="1">
-            <div id="editor-joint-type-value" class="gui-slider-label">1</div>
-        </div> -->
-
-        <div class="gui-grid-label">
-            <div class="gui-column">
-                <p class="gui-split-label-left">Constraint Compliance [μ]</p>
-                <p class="gui-split-label-right">0.0 => Infinite stiffness (default)</p>
-            </div>
-        </div>
-        <div class="gui-slider-container">
-            <input id="editor-constraint-compliance-slider" class="gui-slider" type="range" min="0" max="0.5" step="0.005" value="0">
-            <div id="editor-constraint-compliance-value" class="gui-slider-label">0</div>
-        </div>
-        
-        <p class="gui-primary-header">Rigidbody settings</p>
-        <div class="gui-grid-label">
-            <div class="gui-column">
-                <p class="gui-split-label-left">Mass</p>
-                <p class="gui-split-label-right">[kg]</p>
-            </div>
-        </div>
-        <div class="gui-slider-container">
-            <input id="editor-mass-slider" class="gui-slider" type="range" min="0.1" max="60" step="0.1" value="1">
-            <div id="editor-mass-value" class="gui-slider-label">1</div>
-        </div>
-
     </div>
 
     <script src="./src/main.js" type="module"></script>

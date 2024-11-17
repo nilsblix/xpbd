@@ -23,16 +23,16 @@ export const LineWidths = {
     fixed_y_constraint_rad: 0.05,
     fixed_constraints_outlines: 0.01,
     fixed_constraints_lines: 0.02,
-    spring_joint_horizontal_line: 0.05,
+    spring_joint_horizontal_line: 0.04,
     revolute_joint: 0.005,
 }
 
 export const RenderConstants = {
     spring_joint_segments: 16,
-    spring_joint_box_width: 0.1,
-    spring_joint_box_height: 0.2,
-    spring_joint_box_radius: 0.02,
-    spring_joint_spring_width: 0.4,
-    spring_joint_segment_width: 0.04,
+    spring_joint_box_width: 0.05,
+    spring_joint_box_height: 0.10,
+    spring_joint_box_radius: 0.01,
+    spring_joint_spring_width: 0.18,
+    spring_joint_segment_width: 0.03,
     revolute_joint_radius: 0.03,
 }

@@ -7,13 +7,11 @@ class GUIWindow {
         toggle_window_key,
         id_window,
         id_header,
-        id_close_btn,
         slider_args,
     ) {
         this.toggle_key = toggle_window_key;
         this.window = document.getElementById(id_window);
         this.header = document.getElementById(id_header);
-        this.close_btn = document.getElementById(id_close_btn);
         this.slider_args = slider_args;
     }
 
@@ -27,10 +25,6 @@ class GUIWindow {
 
     init() {
         this.window.style.display = "none";
-
-        this.close_btn.addEventListener("click", () => {
-            this.window.style.display = "none";
-        });
 
         for (let i = 0; i < this.slider_args.length; i++) {
             GUIWindow.updateSlider(this.slider_args[i]);
@@ -74,7 +68,6 @@ const settings = new GUIWindow(
     "q",
     "settings-window",
     "settings-header",
-    "settings-close-button",
     [
         {
             slider_id: "settings-gravity-slider",
@@ -87,8 +80,8 @@ const settings = new GUIWindow(
             num_decimals: "2",
         },
         {
-            slider_id: "settings-spring-joint-stiffness-slider",
-            value_id: "settings-spring-joint-stiffness-value",
+            slider_id: "settings-spring-stiffness-slider",
+            value_id: "settings-spring-stiffness-value",
             num_decimals: "1",
         },
         {
@@ -103,7 +96,6 @@ const profiling = new GUIWindow(
     "a",
     "profiling-window",
     "profiling-header",
-    "profiling-close-button",
     [],
 );
 
@@ -111,7 +103,6 @@ const info = new GUIWindow(
     "z",
     "info-window",
     "info-header",
-    "info-close-button",
     [
         {
             slider_id: "info-sub-steps-slider",
@@ -125,7 +116,6 @@ const editor_window = new GUIWindow(
     "e",
     "editor-window",
     "editor-header",
-    "editor-close-button",
     [
         {
             slider_id: "editor-rigidbody-type-slider",
@@ -137,14 +127,9 @@ const editor_window = new GUIWindow(
             value_id: "editor-constraint-compliance-value",
             num_decimals: "3",
         },
-        // {
-        //     slider_id: "editor-joint-type-slider",
-        //     value_id: "editor-joint-type-value",
-        //     num_decimals: "0",
-        // },
         {
-            slider_id: "editor-mass-slider",
-            value_id: "editor-mass-value",
+            slider_id: "editor-rigidbody-mass-slider",
+            value_id: "editor-rigidbody-mass-value",
             num_decimals: "1",
         },
         
@@ -184,7 +169,7 @@ function updateChangedUserData() {
     // SETTINGS ---------------------------------------------------------------------------------------------------------------------------
     PhysicsSystem.GRAVITY = document.getElementById("settings-gravity-slider").value;
     PhysicsSystem.ENERGY_DAMP_MU = document.getElementById("settings-energy-damping-slider").value;
-    PhysicsSystem.SPRING_JOINT_STIFFNESS = document.getElementById("settings-spring-joint-stiffness-slider").value;
+    PhysicsSystem.SPRING_JOINT_STIFFNESS = document.getElementById("settings-spring-stiffness-slider").value;
     PhysicsSystem.MOUSESPRING_JOINT_STIFFNESS = document.getElementById("settings-mouse-spring-stiffness-slider").value;
 
     // INFO ---------------------------------------------------------------------------------------------------------------------------
@@ -209,7 +194,7 @@ function updateChangedUserData() {
     //     editor.spawner.typeof_joint = "revolute";
     // }
 
-    editor.standard.mass = document.getElementById("editor-mass-slider").value;
+    editor.standard.mass = document.getElementById("editor-rigidbody-mass-slider").value;
     editor.spawner.constraint_alpha = 1E-6 * document.getElementById("editor-constraint-compliance-slider").value;
 
     
