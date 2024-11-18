@@ -38,6 +38,8 @@ export class RigidBody {
         this.tau = 0;
         this.I;
 
+        this.color = Colors.body_colors[Units.random(0, Colors.body_colors.length)];
+
         this.geometry = {
             type: geometry.type, 
             radius: geometry.radius, 
@@ -94,8 +96,8 @@ export class RigidBody {
 
         if (this.geometry.type == "disc") {
 
-            Render.c.fillStyle = Colors.disc_body;
-            Render.c.strokeStyle = Colors.outlines;
+            Render.c.fillStyle = this.color;
+            Render.c.strokeStyle = Colors.body_outlines;
             Render.c.lineWidth = Units.mult_s2c * LineWidths.bodies;
             Render.arc(this.pos, this.geometry.radius, true, true);
 
@@ -109,8 +111,8 @@ export class RigidBody {
                 this.geometry.world_vertices.push(this.localToWorld(this.geometry.local_vertices[i]));
             }
 
-            Render.c.fillStyle = Colors.rect_body;
-            Render.c.strokeStyle = Colors.outlines;
+            Render.c.fillStyle = this.color;
+            Render.c.strokeStyle = Colors.body_outlines;
             Render.c.lineWidth = Units.mult_s2c * LineWidths.bodies;
             Render.polygon(this.geometry.world_vertices, true, true);
         }
@@ -155,76 +157,3 @@ export class RigidBody {
     }
 
 }
-
-// export class DiscBody {
-//     /**
-//      * @param {Vector2} pos SIM
-//      * @param {number} radius SIM
-//      * @param {number} mass 
-//      */
-//     constructor(pos, radius, mass) {
-//         this.pos = pos;
-//         this.prev_pos = pos;
-//         this.vel = Vector2.zero;
-//         this.force = Vector2.zero;
-//         this.mass = mass;
-
-//         this.theta = 0;
-//         this.prev_theta = 0;
-//         this.omega = 0;
-//         this.tau = 0;
-//         this.I = 1/2 * mass * radius ** 2;
-
-//         this.radius = radius;
-//     }
-
-//     render() {
-//         Render.c.fillStyle = Colors.disc_body;
-//         Render.c.strokeStyle = Colors.outlines;
-//         Render.c.lineWidth = Units.mult_s2c * LineWidths.bodies;
-//         Render.arc(this.pos, this.radius, true, true);
-
-//         const rot_radius = this.radius / 8;
-//         const r = Vector2.right.clone().rotateByAngle(this.theta);
-//         r.scale(this.radius / 2);
-//         r.add(this.pos);
-//         Render.c.fillStyle = Colors.outlines;
-//         Render.arc(r, rot_radius, true, true);
-//     }
-
-// }
-
-// export class RectBody {
-//     /**
-//      * 
-//      * @param {Vector2} pos 
-//      * @param {number} mass 
-//      * @param {[Vector2]} vertices 
-//      */
-//     constructor(pos, mass, width, height) {
-//         this.pos = pos;
-//         this.prev_pos = pos;
-//         this.vel = Vector2.zero;
-//         this.force = Vector2.zero;
-//         this.mass = mass;
-
-//         this.theta = 0;
-//         this.prev_theta = 0;
-//         this.omega = 0;
-//         this.tau = 0;
-//         // this.I = 1/2 * mass * radius ** 2;
-//         this.I = 1 / 12 * mass * (width * width + height * height);
-
-//         this.vertices = [
-//             new Vector2(-width/2, -height/2),
-//             new Vector2(-width/2,  height/2),
-//             new Vector2( width/2,  height/2),
-//             new Vector2( width/2, -height/2),
-//         ];
-//     }
-
-//     render() {
-        
-
-//     }
-// }

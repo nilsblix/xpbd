@@ -3,13 +3,24 @@ export const Colors = {
     outlines: "#000000",
     hologramic_spawning: "#87cfff99",
     hologramic_spawning_outline: "#1c73ad",
-    disc_body: "#fac943",
-    rect_body: "#a15ed1",
+    body_outlines: "#000000",
+    disc_body: "#f0f0f0", // "#fac943",
+    rect_body: "#f0f0f0", // "#a15ed1",
     link_constraint: "#ffffff",
     fixed_y_constraint: "#ffffff",
     bodies_bounding_box: "#00ff00",
     spring_joint: "#ffffff",
     revolute_joint: "#ffffff",
+
+    body_colors: [
+        "#ed4640",
+        "#f7c923",
+        "#9bf046",
+        "#46f0e7",
+        "#4684f0",
+        "#9b46f0",
+        "#eb63b9"
+    ]
 }
 
 /**

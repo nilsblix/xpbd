@@ -124,4 +124,13 @@ export class Units {
         return r1 + (x - x1) * (r1 - r2) / (x1 - x2);
     }
 
+    /**
+     * @param {number} min Inclusive
+     * @param {number} max Exclusive
+     * @returns {number} Integer between min and max
+     */
+    static random(min, max) {
+        return Math.floor((max - min) * Math.random()) + min;
+    }
+
 }
