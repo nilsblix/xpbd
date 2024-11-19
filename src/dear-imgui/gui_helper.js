@@ -1,5 +1,7 @@
 import { PhysicsSystem } from "../physics_system.js";
 import { editor } from "../editor.js";
+import { User } from "../user.js";
+import { RigidBody } from "../rigid_body.js";
 
 class GUIWindow {
     // slider args is in [{slider_id: x, value_id: x, num_decimals: x}, {etc}]
@@ -143,9 +145,22 @@ export function initGUIWindows() {
     editor_window.init();
 }
 
-export function updateGUI(psystem) {
+export function updateGUI(canvas, psystem) {
+    // update constant label positions
+    const rect = canvas.getBoundingClientRect();
+    const popup = document.getElementById("popup-window");
+    const top_left_label = document.getElementById("top-left-label");
+    const paused = document.getElementById("paused");
+    popup.style.right = `${window.innerWidth - rect.right}px`;
+    popup.style.bottom = `${window.innerHeight - rect.bottom}px`;
+    top_left_label.style.left = `${rect.left}px`;
+    top_left_label.style.top = `${rect.top}px`;
+    paused.style.right = `${window.innerWidth - rect.right}px`;
+    paused.style.top = `${rect.top}px`;
+
     updateDisplayedDebugs(psystem);
     updateChangedUserData();
+    updatePopupWindow(canvas, psystem)
 }
 
 function updateDisplayedDebugs(psystem) {
@@ -198,5 +213,59 @@ function updateChangedUserData() {
     editor.spawner.constraint_alpha = 1E-6 * document.getElementById("editor-constraint-compliance-slider").value;
 
     
+
+}
+
+function updatePopupWindow(canvas, psystem) {
+    const num_dec = 2;
+    const infos = psystem.getRigidBodyInfoContainingPoint(User.mouse.sim_pos, false);
+    const popup = document.getElementById("popup-window");
+
+    if (!infos) {
+        popup.style.display = "none";
+        return;
+    }
+
+    const info = infos[0];
+
+    const rect = canvas.getBoundingClientRect();
+
+    popup.style.display = "none";
+
+    for (let i = 1; i <= 9; i++) { // 9 is max entry id
+        document.getElementById("popup-entry-" + i).style.display = "none";
+    }
+
+    const updateFigure = (id, name, value, unit) => {
+        document.getElementById("popup-name-" + id).innerHTML = name;
+        document.getElementById("popup-number-" + id).innerHTML = value;
+        document.getElementById("popup-unit-" + id).innerHTML = unit;
+        document.getElementById("popup-entry-" + id).style.display = "block";
+    }
+
+    const body = info.body;
+    if (body instanceof RigidBody) {
+        updateFigure(1, "ID", info.id, "");
+        updateFigure(2, "Type", "" + body.geometry.type, "");
+        updateFigure(3, "Mass", "" + body.mass.toFixed(num_dec), "kg");
+        updateFigure(4, "Inertia", "" + body.I.toFixed(num_dec), "kg * m^2");
+        updateFigure(5, "Vel", "" + body.vel.magnitude().toFixed(num_dec), "m / s");
+        updateFigure(6, "Omega", "" + Math.abs(body.omega).toFixed(num_dec), "rad / s");
+        updateFigure(7, "K. Energy", "" + body.getKineticEnergy().toFixed(num_dec), "J");
+
+        if (body.geometry.type == "disc") {
+            updateFigure(8, "Radius", body.geometry.radius.toFixed(num_dec), "m");
+        } else if (body.geometry.type == "rect") {
+            updateFigure(8, "Width", body.geometry.width.toFixed(num_dec), "m");
+            updateFigure(9, "Height", body.geometry.height.toFixed(num_dec), "m");
+        }
+
+        popup.style.display = "block";
+
+        return;
+
+    }
+
+    popup.style.display = "none";
 
 }

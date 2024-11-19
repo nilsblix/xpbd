@@ -2,12 +2,13 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>xpbd</title>
     <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪩</text></svg>">
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪩</text></svg>">
     <link rel="stylesheet" href="./src/dear-imgui/custom_gui.css">
     <style>
         @font-face {
@@ -49,12 +50,42 @@
             pointer-events: none;
         }
 
+        .popup-window {
+            position: absolute;
+            display: block;
+            width: 200px;
+
+            right: 0;
+            bottom: 0;
+
+            font-family: basis33;
+            color: white;
+            /* padding-left: 1em; */
+            font-size: 16px;
+
+            /* background-color: red; */
+            /* border: 2px solid white; */
+
+            user-select: none;
+            pointer-events: none;
+
+            z-index: 1;
+
+        }
+
+        .popup-label-data-p {
+            margin-left: 15px;
+            margin-top: 0.2em;
+            margin-bottom: 0.2em;
+            /* border: 1px solid yellow; */
+        }
     </style>
 </head>
+
 <body>
     <canvas id="engine"></canvas>
 
-    <div class="top-left-label">[q][a][z][e]</div>
+    <div id="top-left-label" class="top-left-label">[q][a][z][e]</div>
 
     <div id="paused">*paused</div>
     <script>document.getElementById("paused").style.display = "block";</script>
@@ -62,30 +93,34 @@
     <div id="settings-window" class="c-window">
         <div id="settings-header" class="c-header">&nbsp;// PHYSICS SETTINGS</div>
 
-         <div class="c-content">
+        <div class="c-content">
             <div class="c-grid" style="grid-template-rows: repeat(9, 30px);">
 
                 <div class="c-primary-header">Name, default-value, [units]</div>
                 <div class="c-label-left">Gravity</div>
-                    <div class="c-label-right">[m / s^2]</div>
-                <input id="settings-gravity-slider" type="range" min="-10" max="10" value="9.82" step="0.01" class="c-slider" />
-                    <div id="settings-gravity-value" class="c-slider-value">9.82</div>
-                
+                <div class="c-label-right">[m / s^2]</div>
+                <input id="settings-gravity-slider" type="range" min="-10" max="10" value="9.82" step="0.01"
+                    class="c-slider" />
+                <div id="settings-gravity-value" class="c-slider-value">9.82</div>
+
                 <div class="c-label-left">Energy Damping</div>
-                    <div class="c-label-right">[]</div>
-                <input id="settings-energy-damping-slider" type="range" min="0" max="2" value="0.0" step="0.01" class="c-slider" />
-                    <div id="settings-energy-damping-value" class="c-slider-value">0.0</div>  
-                
+                <div class="c-label-right">[]</div>
+                <input id="settings-energy-damping-slider" type="range" min="0" max="2" value="0.0" step="0.01"
+                    class="c-slider" />
+                <div id="settings-energy-damping-value" class="c-slider-value">0.0</div>
+
                 <div class="c-label-left">Spring Stiffness</div>
-                    <div class="c-label-right">[N / m]</div>
-                <input id="settings-spring-stiffness-slider" type="range" min="0" max="100" value="20.0" step="0.1" class="c-slider" />
-                    <div id="settings-spring-stiffness-value" class="c-slider-value">20.0</div> 
-                
+                <div class="c-label-right">[N / m]</div>
+                <input id="settings-spring-stiffness-slider" type="range" min="0" max="100" value="20.0" step="0.1"
+                    class="c-slider" />
+                <div id="settings-spring-stiffness-value" class="c-slider-value">20.0</div>
+
                 <div class="c-label-left">M. Spring Stiff.</div>
-                    <div class="c-label-right">[N / m]</div>
-                <input id="settings-mouse-spring-stiffness-slider" type="range" min="0" max="150" value="20.0" step="0.1" class="c-slider" />
-                    <div id="settings-mouse-spring-stiffness-value" class="c-slider-value">20.0</div> 
-                 
+                <div class="c-label-right">[N / m]</div>
+                <input id="settings-mouse-spring-stiffness-slider" type="range" min="0" max="150" value="20.0"
+                    step="0.1" class="c-slider" />
+                <div id="settings-mouse-spring-stiffness-value" class="c-slider-value">20.0</div>
+
             </div>
         </div>
     </div>
@@ -94,7 +129,7 @@
         <div id="profiling-header" class="c-header">&nbsp;// PROFILING</div>
 
         <div class="c-content">
-            <div class="c-grid"style="grid-template-rows: repeat(5, 30px); width: 200px;">
+            <div class="c-grid" style="grid-template-rows: repeat(5, 30px); width: 200px;">
 
                 <div class="c-label">DT =&nbsp;<span id="profiling-dt">0.0</span>&nbsp;ms</div>
                 <div class="c-label">PDT =&nbsp;<span id="profiling-pdt">0.0</span>&nbsp;ms</div>
@@ -110,7 +145,7 @@
         <div id="info-header" class="c-header">&nbsp;// INFO</div>
 
         <div class="c-content">
-            <div class="c-grid"style="grid-template-rows: repeat(10, 30px); width: 300px;">
+            <div class="c-grid" style="grid-template-rows: repeat(10, 30px); width: 300px;">
 
                 <div class="c-secondary-header">Rates:</div>
                 <div class="c-label">FR =&nbsp;<span id="info-framerate">0.0</span>&nbsp;Hz</div>
@@ -118,9 +153,9 @@
 
                 <div class="c-secondary-header">SUB STEPS:</div>
                 <div class="c-label-left">Less substeps --></div>
-                    <div class="c-label-right" style="color: white;">More natural energy loss</div>
+                <div class="c-label-right" style="color: white;">More natural energy loss</div>
                 <input id="info-sub-steps-slider" type="range" min="0" max="20" value="10" step="1" class="c-slider" />
-                    <div id="info-sub-steps-value" class="c-slider-value">10</div>
+                <div id="info-sub-steps-value" class="c-slider-value">10</div>
 
                 <div class="c-secondary-header">Num: </div>
                 <div class="c-label">Rigidbodies =&nbsp;<span id="info-num-rigidbodies">0</span></div>
@@ -135,7 +170,7 @@
         <div id="editor-header" class="c-header">&nbsp;// EDITOR</div>
 
         <div class="c-content">
-            <div class="c-grid"style="grid-template-rows: repeat(11, 30px); width: 300px;">
+            <div class="c-grid" style="grid-template-rows: repeat(11, 30px); width: 300px;">
 
                 <div class="c-label">Active:&nbsp;<span id="editor-active">FALSE</span></div>
 
@@ -143,26 +178,56 @@
                 <div class="c-secondary-header">Rigidbody: </div>
                 <!-- rigidbody type -->
                 <div class="c-label-left">Type: </div>
-                    <div class="c-label-right">1: Disc, 2: Rect</div>
-                <input id="editor-rigidbody-type-slider" type="range" min="1" max="2" value="1" step="1" class="c-slider" />
-                    <div id="editor-rigidbody-type-value" class="c-slider-value">1</div>
+                <div class="c-label-right">1: Disc, 2: Rect</div>
+                <input id="editor-rigidbody-type-slider" type="range" min="1" max="2" value="1" step="1"
+                    class="c-slider" />
+                <div id="editor-rigidbody-type-value" class="c-slider-value">1</div>
                 <!-- rigidbody mass -->
                 <div class="c-label-left">Mass: </div>
-                    <div class="c-label-right">[kg]</div>
-                <input id="editor-rigidbody-mass-slider" type="range" min="0" max="32" value="1" step="0.1" class="c-slider" />
-                    <div id="editor-rigidbody-mass-value" class="c-slider-value">1</div>
-                
+                <div class="c-label-right">[kg]</div>
+                <input id="editor-rigidbody-mass-slider" type="range" min="0" max="32" value="1" step="0.1"
+                    class="c-slider" />
+                <div id="editor-rigidbody-mass-value" class="c-slider-value">1</div>
+
                 <div class="c-secondary-header">Constraints: </div>
                 <div class="c-label">Joint Type:&nbsp;<span id="editor-joint-type">Link</span></div>
                 <div class="c-label-left">Compliance [μ]: </div>
-                    <div class="c-label-right">0.0 => Infinite stiffness (default)</div>
-                <input id="editor-constraint-compliance-slider" type="range" min="0" max="0.5" value="0.0" step="0.005" class="c-slider" />
-                    <div id="editor-constraint-compliance-value" class="c-slider-value">0.0</div>
+                <div class="c-label-right">0.0 => Infinite stiffness (default)</div>
+                <input id="editor-constraint-compliance-slider" type="range" min="0" max="0.5" value="0.0" step="0.005"
+                    class="c-slider" />
+                <div id="editor-constraint-compliance-value" class="c-slider-value">0.0</div>
 
             </div>
         </div>
     </div>
 
+    <div id="popup-window" class="popup-window">
+        <p style="justify-self: center;">// ENTITY INFO </p>
+
+        <p id="popup-entry-1" class="popup-label-data-p"><span id="popup-name-1">name</span> = <span
+                id="popup-number-1">number</span> <span id="popup-unit-1">unit</span></p>
+        <p id="popup-entry-2" class="popup-label-data-p"><span id="popup-name-2">name</span> = <span
+                id="popup-number-2">number</span> <span id="popup-unit-2">unit</span></p>
+        <p id="popup-entry-3" class="popup-label-data-p"><span id="popup-name-3">name</span> = <span
+                id="popup-number-3">number</span> <span id="popup-unit-3">unit</span></p>
+        <p id="popup-entry-4" class="popup-label-data-p"><span id="popup-name-4">name</span> = <span
+                id="popup-number-4">number</span> <span id="popup-unit-4">unit</span></p>
+        <p id="popup-entry-5" class="popup-label-data-p"><span id="popup-name-5">name</span> = <span
+                id="popup-number-5">number</span> <span id="popup-unit-5">unit</span></p>
+        <p id="popup-entry-6" class="popup-label-data-p"><span id="popup-name-6">name</span> = <span
+                id="popup-number-6">number</span> <span id="popup-unit-6">unit</span></p>
+        <p id="popup-entry-7" class="popup-label-data-p"><span id="popup-name-7">name</span> = <span
+                id="popup-number-7">number</span> <span id="popup-unit-7">unit</span></p>
+        <p id="popup-entry-8" class="popup-label-data-p"><span id="popup-name-8">name</span> = <span
+                id="popup-number-8">number</span> <span id="popup-unit-8">unit</span></p>
+        <p id="popup-entry-9" class="popup-label-data-p"><span id="popup-name-9">name</span> = <span
+                id="popup-number-9">number</span> <span id="popup-unit-9">unit</span></p>
+
+        <p class="popup-label-data-p" style="justify-self: center;">&nbsp;</p>
+
+    </div>
+
     <script src="./src/main.js" type="module"></script>
 </body>
+
 </html>

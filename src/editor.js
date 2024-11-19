@@ -86,7 +86,7 @@ export const editor = {
         }
     },
 
-    spawnRagdoll(psystem) {
+    spawnRagdoll(psystem, pos = null) {
         const id_off = psystem.bodies.length;
 
         const alpha = 0.0;
@@ -94,6 +94,9 @@ export const editor = {
         const ol = 0.03 // overlapp
 
         const headpos = (this.snap_to_grid ? User.mouse.grid_sim_pos : User.mouse.sim_pos).clone();
+        if (pos) {
+            headpos.set(pos);
+        }
         const r_head = 0.2;
         const neck = 0.08;
 

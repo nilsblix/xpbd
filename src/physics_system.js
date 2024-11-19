@@ -95,13 +95,6 @@ export class PhysicsSystem {
                 a.tau = 0;
             }
 
-            // collide with floor:
-            for (let i = 0; i < this.bodies.length; i++) {
-                const b = this.bodies[i];
-                if (b.pos.y < b.radius)
-                    b.pos.y = b.radius
-            }
-
             // solve constraints
             for (let i = 0; i < this.constraints.length; i++) {
                 this.constraints[i].solve(this.bodies);
@@ -202,12 +195,15 @@ export class PhysicsSystem {
         const infos = [];
         for (let i = this.bodies.length - 1; i >= 0; i--) {
             const body = this.bodies[i];
-            if (body.pointIsInside(point))
+            if (body.pointIsInside(point)) {
                 infos.push({id: i, body: body});
                 if (!search_through_bodies || infos.length == 2) return infos;
+            }
         }
 
-        if (search_through_bodies) return infos.length == 0 ? false : infos;
+        if (search_through_bodies && infos.length > 0) {
+            return infos;
+        }
 
         return false;
 

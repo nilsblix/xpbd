@@ -27,7 +27,7 @@ export function update(canvas) {
 
     Units.init(canvas);
 
-    updateGUI(psystem);
+    updateGUI(canvas, psystem);
     fps_calculator.update();
 
     if (!document.hasFocus()) {
