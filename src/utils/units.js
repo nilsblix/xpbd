@@ -20,10 +20,10 @@ export class Units {
     static init(canvas) {
         const window_ratio = window.innerWidth / window.innerHeight;
         if (window_ratio > this.RATIO) {
-            canvas.height = 0.99 * window.innerHeight;
+            canvas.height = 1 * window.innerHeight;
             canvas.width = canvas.height * this.RATIO;
         } else {
-            canvas.width = 0.99 * window.innerWidth;
+            canvas.width = 1 * window.innerWidth;
             canvas.height = canvas.width / this.RATIO;
         }
 

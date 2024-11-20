@@ -38,6 +38,7 @@ export const editor = {
             r1: Vector2.zero.clone(),
         },
     },
+    recent_entities: [],
 
     /**
      * @param {PhysicsSystem} psystem 
@@ -61,6 +62,7 @@ export const editor = {
         }
 
         psystem.bodies.push(body);
+        this.recent_entities.push({type: "rigidbody", id: psystem.bodies.length - 1});
 
     },
 
@@ -70,20 +72,26 @@ export const editor = {
      */
     spawnPrismaticJoint(psystem, type, id, r) {
         psystem.addPrismaticJoint(this.spawner.constraint_alpha, type, id, r);
+        this.recent_entities.push({type: "constraint", id: psystem.constraints.length - 1});
     },
 
     spawnJoint(psystem, type, id1, id2, r1, r2) {
         switch (type) {
             case "link":
                 psystem.addLinkJoint(this.spawner.constraint_alpha, id1, id2, r1, r2);
+                this.recent_entities.push({type: "constraint", id: psystem.constraints.length - 1});
                 break;
             case "revolute":
                 psystem.addRevoluteJoint(this.spawner.constraint_alpha, id1, id2, r1, r2);
+                this.recent_entities.push({type: "constraint", id: psystem.constraints.length - 1});
                 break;
             case "spring":
                 psystem.addSpringJoint(id1, id2, r1, r2);
+                this.recent_entities.push({type: "force generator", id: psystem.force_generators.length - 1});
                 break;
         }
+
+
     },
 
     spawnRagdoll(psystem, pos = null) {
@@ -122,11 +130,17 @@ export const editor = {
         const arm2 = new RigidBody(a2pos, 1, {type: "rect", width: aw, height: ah});
 
         psystem.bodies.push(head);
+        this.recent_entities.push({type: "rigidbody", id: psystem.bodies.length - 1});
         psystem.bodies.push(torso);
+        this.recent_entities.push({type: "rigidbody", id: psystem.bodies.length - 1});
         psystem.bodies.push(leg1);
+        this.recent_entities.push({type: "rigidbody", id: psystem.bodies.length - 1});
         psystem.bodies.push(leg2);
+        this.recent_entities.push({type: "rigidbody", id: psystem.bodies.length - 1});
         psystem.bodies.push(arm1);
+        this.recent_entities.push({type: "rigidbody", id: psystem.bodies.length - 1});
         psystem.bodies.push(arm2);
+        this.recent_entities.push({type: "rigidbody", id: psystem.bodies.length - 1});
 
         const rev_t_l1_p = Vector2.add(l1pos, new Vector2(0, lh/2 - ol/2));
         const rev_torso_leg1 = new RevoluteJoint(alpha, id_off + 1, id_off + 2, torso.worldToLocal(rev_t_l1_p), leg1.worldToLocal(rev_t_l1_p));
@@ -141,17 +155,35 @@ export const editor = {
         const rev_torso_arm2 = new RevoluteJoint(alpha, id_off + 1, id_off + 5, torso.worldToLocal(rev_t_a2_p), arm2.worldToLocal(rev_t_a2_p));
 
         psystem.constraints.push(rev_torso_leg1);
+        this.recent_entities.push({type: "constraint", id: psystem.constraints.length - 1});
         psystem.constraints.push(rev_torso_leg2);
+        this.recent_entities.push({type: "constraint", id: psystem.constraints.length - 1});
         psystem.constraints.push(rev_torso_arm1);
+        this.recent_entities.push({type: "constraint", id: psystem.constraints.length - 1});
         psystem.constraints.push(rev_torso_arm2);
+        this.recent_entities.push({type: "constraint", id: psystem.constraints.length - 1});
 
         const link_t_head_p1 = Vector2.add(tpos, new Vector2(-r_head/2, th/2 - ol/2));
         const link_t_head_p2 = Vector2.add(headpos, new Vector2(- r_head/4, -r_head/4));
         const link_t_head_p3 = Vector2.add(headpos, new Vector2( r_head/4, -r_head/4));
         const link_t_head_p4 = Vector2.add(tpos, new Vector2( r_head/2, th/2 - ol/2));
         psystem.addLinkJoint(alpha, id_off + 1, id_off, torso.worldToLocal(link_t_head_p1), head.worldToLocal(link_t_head_p2));
+        this.recent_entities.push({type: "constraint", id: psystem.constraints.length - 1});
         psystem.addLinkJoint(alpha, id_off + 1, id_off, torso.worldToLocal(link_t_head_p4), head.worldToLocal(link_t_head_p3));
-    
+        this.recent_entities.push({type: "constraint", id: psystem.constraints.length - 1});
+
+    },
+
+    removeMostRecentEntity(psystem) {
+        if (this.recent_entities.length == 0) return;
+
+        const recent = this.recent_entities.pop();
+        if (recent.type == "rigidbody") 
+            psystem.bodies.splice(recent.id, 1);
+        else if (recent.type == "force generator") 
+            psystem.force_generators.splice(recent.id, 1);
+        else if (recent.type == "constraint") 
+            psystem.constraints.splice(recent.id, 1);
 
     },
 
@@ -171,10 +203,6 @@ export const editor = {
     },
 
     render(psystem) {
-
-        const mouse_pos = this.snap_to_grid ? User.mouse.grid_sim_pos : User.mouse.sim_pos;
-        Render.c.fillStyle = Colors.editor_mouse;
-        Render.arc(mouse_pos, 0.05, false, true);
 
         Render.c.lineWidth = LineWidths.hologramic_outline * Units.mult_s2c;
         Render.c.fillStyle = Colors.hologramic_spawning;

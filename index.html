@@ -48,6 +48,7 @@
 
             text-align: center;
             pointer-events: none;
+            user-select: none;
         }
 
         .popup-window {
@@ -85,7 +86,7 @@
 <body>
     <canvas id="engine"></canvas>
 
-    <div id="top-left-label" class="top-left-label">[q][a][z][e]</div>
+    <div id="top-left-label" class="top-left-label">[q][a][z][w][e]</div>
 
     <div id="paused">*paused</div>
     <script>document.getElementById("paused").style.display = "block";</script>
@@ -97,26 +98,26 @@
             <div class="c-grid" style="grid-template-rows: repeat(9, 30px);">
 
                 <div class="c-primary-header">Name, default-value, [units]</div>
-                <div class="c-label-left">Gravity</div>
-                <div class="c-label-right">[m / s^2]</div>
+                <div class="c-label-3">Gravity</div>
+                <div class="c-label-1g">[m / s^2]</div>
                 <input id="settings-gravity-slider" type="range" min="-10" max="10" value="9.82" step="0.01"
                     class="c-slider" />
                 <div id="settings-gravity-value" class="c-slider-value">9.82</div>
 
-                <div class="c-label-left">Energy Damping</div>
-                <div class="c-label-right">[]</div>
+                <div class="c-label-3">Energy Damping</div>
+                <div class="c-label-1g">[]</div>
                 <input id="settings-energy-damping-slider" type="range" min="0" max="2" value="0.0" step="0.01"
                     class="c-slider" />
                 <div id="settings-energy-damping-value" class="c-slider-value">0.0</div>
 
-                <div class="c-label-left">Spring Stiffness</div>
-                <div class="c-label-right">[N / m]</div>
+                <div class="c-label-3">Spring Stiffness</div>
+                <div class="c-label-1g">[N / m]</div>
                 <input id="settings-spring-stiffness-slider" type="range" min="0" max="100" value="20.0" step="0.1"
                     class="c-slider" />
                 <div id="settings-spring-stiffness-value" class="c-slider-value">20.0</div>
 
-                <div class="c-label-left">M. Spring Stiff.</div>
-                <div class="c-label-right">[N / m]</div>
+                <div class="c-label-3">Mouse Spring Stiffness</div>
+                <div class="c-label-1g">[N / m]</div>
                 <input id="settings-mouse-spring-stiffness-slider" type="range" min="0" max="150" value="20.0"
                     step="0.1" class="c-slider" />
                 <div id="settings-mouse-spring-stiffness-value" class="c-slider-value">20.0</div>
@@ -131,11 +132,11 @@
         <div class="c-content">
             <div class="c-grid" style="grid-template-rows: repeat(5, 30px); width: 200px;">
 
-                <div class="c-label">DT =&nbsp;<span id="profiling-dt">0.0</span>&nbsp;ms</div>
-                <div class="c-label">PDT =&nbsp;<span id="profiling-pdt">0.0</span>&nbsp;ms</div>
-                <div class="c-label">RDT =&nbsp;<span id="profiling-rdt">0.0</span>&nbsp;ms</div>
-                <div class="c-label">Energy =&nbsp;<span id="profiling-energy">0.0</span>&nbsp;J</div>
-                <div class="c-label">C-Eval =&nbsp;<span id="profiling-c-eval">0.0</span>&nbsp;μ</div>
+                <div class="c-label-4">DT =&nbsp;<span id="profiling-dt">0.0</span>&nbsp;ms</div>
+                <div class="c-label-4">PDT =&nbsp;<span id="profiling-pdt">0.0</span>&nbsp;ms</div>
+                <div class="c-label-4">RDT =&nbsp;<span id="profiling-rdt">0.0</span>&nbsp;ms</div>
+                <div class="c-label-4">Energy =&nbsp;<span id="profiling-energy">0.0</span>&nbsp;J</div>
+                <div class="c-label-4">C-Eval =&nbsp;<span id="profiling-c-eval">0.0</span>&nbsp;μ</div>
 
             </div>
         </div>
@@ -148,21 +149,82 @@
             <div class="c-grid" style="grid-template-rows: repeat(10, 30px); width: 300px;">
 
                 <div class="c-secondary-header">Rates:</div>
-                <div class="c-label">FR =&nbsp;<span id="info-framerate">0.0</span>&nbsp;Hz</div>
-                <div class="c-label">SR =&nbsp;<span id="info-simrate">0.0</span>&nbsp;Hz</div>
+                <div class="c-label-4">FR =&nbsp;<span id="info-framerate">0.0</span>&nbsp;Hz</div>
+                <div class="c-label-4">SR =&nbsp;<span id="info-simrate">0.0</span>&nbsp;Hz</div>
 
                 <div class="c-secondary-header">SUB STEPS:</div>
-                <div class="c-label-left">Less substeps --></div>
-                <div class="c-label-right" style="color: white;">More natural energy loss</div>
+                <div class="c-label-2">Less substeps --></div>
+                <div class="c-label-2">More natural energy loss</div>
                 <input id="info-sub-steps-slider" type="range" min="0" max="20" value="10" step="1" class="c-slider" />
                 <div id="info-sub-steps-value" class="c-slider-value">10</div>
 
                 <div class="c-secondary-header">Num: </div>
-                <div class="c-label">Rigidbodies =&nbsp;<span id="info-num-rigidbodies">0</span></div>
-                <div class="c-label">ForceGenerators =&nbsp;<span id="info-num-force-generators">0</span></div>
-                <div class="c-label">Constraints =&nbsp;<span id="info-num-constraints">0</span></div>
+                <div class="c-label-4">Rigidbodies =&nbsp;<span id="info-num-rigidbodies">0</span></div>
+                <div class="c-label-4">ForceGenerators =&nbsp;<span id="info-num-force-generators">0</span></div>
+                <div class="c-label-4">Constraints =&nbsp;<span id="info-num-constraints">0</span></div>
 
             </div>
+        </div>
+    </div>
+
+    <div id="keybind-window" class="c-window">
+        <div id="keybind-header" class="c-header">&nbsp;// KEYBINDS</div>
+
+        <div class="c-content">
+
+            <div class="c-grid" style="grid-template-rows: repeat(13, 35px); width: 250px;">
+                <div class="c-primary-header">General: </div>
+                <div class="c-label-2">Toggle Simulating</div>
+                    <div class="c-label-2g">[spacebar]</div>
+                <div class="c-label-2">Reset Scene</div>
+                    <div class="c-label-2g">[R] *capital</div>
+
+                <div class="c-primary-header">Toggle Windows: </div>
+                <div class="c-label-2">Constants settings</div>
+                    <div class="c-label-2g">[q]</div>
+                <div class="c-label-2">Profiling</div>
+                    <div class="c-label-2g">[a]</div>
+                <div class="c-label-2">Info</div>
+                    <div class="c-label-2g">[z]</div>
+                <div class="c-label-2">Keybinds</div>
+                    <div class="c-label-2g">[w]</div>
+                <div class="c-label-2">Editor</div>
+                    <div class="c-label-2g">[e]</div>
+
+                <div class="c-primary-header">Demo Scenes: </div>
+                <div class="c-secondary-header">*only when no entities exist</div>
+                <div class="c-label-2">Analog scale</div>
+                    <div class="c-label-2g">[1]</div>
+                <div class="c-label-2">???</div>
+                    <div class="c-label-2g">[2]</div>
+            </div>
+
+            <div class="c-grid" style="grid-template-rows: 30px repeat(11, 45px); width: 500px;">
+                <div class="c-primary-header">Editor: </div>
+                <div class="c-label-1">Toggle</div>
+                    <div class="c-label-3g">[E] *capital</div>
+                <div class="c-label-1">Spawn Rigidbody</div>
+                    <div class="c-label-3g">hold [s] then release to determine size</div>
+                <div class="c-label-1">Spawn Joint</div>
+                    <div class="c-label-3g">press or hold then release [c] (dependant on joint type)</div>
+                <div class="c-label-1">Undo recent entity</div>
+                    <div class="c-label-3g">press [backspace]</div>
+                <div class="c-label-1">Cancel spawning</div>
+                    <div class="c-label-3g">press [x] (while holograming)</div>
+                <div class="c-secondary-header">Press the corresponding number to change joint type to that joint</div>
+                <div class="c-label-1">[1] Spring</div>
+                    <div class="c-label-3g">Creates a spring (hookes-law) between two rigidbodies</div>
+                <div class="c-label-1">[2] Link</div>
+                    <div class="c-label-3g">Creates a distance-constraint between two rigidbodies</div>
+                <div class="c-label-1">[3] Prism.-Y</div>
+                    <div class="c-label-3g">Constrains a point of a rigidbody to a specific y-value</div>
+                <div class="c-label-1">[4] Prism.-Pos</div>
+                    <div class="c-label-3g">Constrains a point of a rigidbody to a specific 2d-position</div>
+                <div class="c-label-1">[5] Revolute</div>
+                    <div class="c-label-3g">Creates a constraint where two rigidbodies are joined at a rotating point</div>
+            </div>
+
+
         </div>
     </div>
 
@@ -177,22 +239,22 @@
                 <div class="c-primary-header">Spawner Settings: </div>
                 <div class="c-secondary-header">Rigidbody: </div>
                 <!-- rigidbody type -->
-                <div class="c-label-left">Type: </div>
-                <div class="c-label-right">1: Disc, 2: Rect</div>
+                <div class="c-label-2">Type: </div>
+                <div class="c-label-2">1: Disc, 2: Rect</div>
                 <input id="editor-rigidbody-type-slider" type="range" min="1" max="2" value="1" step="1"
                     class="c-slider" />
                 <div id="editor-rigidbody-type-value" class="c-slider-value">1</div>
                 <!-- rigidbody mass -->
-                <div class="c-label-left">Mass: </div>
-                <div class="c-label-right">[kg]</div>
+                <div class="c-label-2">Mass: </div>
+                <div class="c-label-2g">[kg]</div>
                 <input id="editor-rigidbody-mass-slider" type="range" min="0" max="32" value="1" step="0.1"
                     class="c-slider" />
                 <div id="editor-rigidbody-mass-value" class="c-slider-value">1</div>
 
                 <div class="c-secondary-header">Constraints: </div>
-                <div class="c-label">Joint Type:&nbsp;<span id="editor-joint-type">Link</span></div>
-                <div class="c-label-left">Compliance [μ]: </div>
-                <div class="c-label-right">0.0 => Infinite stiffness (default)</div>
+                <div class="c-label-4">Joint Type:&nbsp;<span id="editor-joint-type">Link</span></div>
+                <div class="c-label-1">Compliance: </div>
+                <div class="c-label-3g">[μ] 0.0 => Infinite stiffness (default)</div>
                 <input id="editor-constraint-compliance-slider" type="range" min="0" max="0.5" value="0.0" step="0.005"
                     class="c-slider" />
                 <div id="editor-constraint-compliance-value" class="c-slider-value">0.0</div>

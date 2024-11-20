@@ -3,6 +3,8 @@ import { Render } from "./utils/render.js";
 import { ScopedTimer, FPSCalculator } from "./utils/scoper_timer.js";
 import { Vector2 } from "./utils/math.js";
 
+import { Colors, LineWidths, RenderConstants } from "./settings/render_settings.js";
+
 import { PhysicsSystem } from "./physics_system.js";
 
 import { User } from "./user.js";
@@ -53,6 +55,13 @@ export function update(canvas) {
         if (editor.active) {
             editor.render(psystem);
         }
+
+        const mouse_pos = editor.snap_to_grid ? User.mouse.grid_sim_pos : User.mouse.sim_pos;
+        Render.c.fillStyle = Colors.editor_mouse;
+        Render.c.strokeStyle = "#000000";
+        Render.c.lineWidth = LineWidths.bodies * Units.mult_s2c;
+        Render.arc(mouse_pos, 0.05, true, true);
+
     });
     PhysicsSystem.rdt = render_timer.dt;
 
@@ -180,12 +189,14 @@ function handleEventsOnInput() {
                     editor.active = false;
                     document.getElementById("editor-active").innerHTML = "FALSE";
                     document.getElementById("paused").innerText = "*paused";
+                    Colors.editor_mouse = "#f55742";
                 } else {
                     editor.active = true;
                     PhysicsSystem.simulating = false;
                     document.getElementById("editor-active").innerHTML = "TRUE";
                     document.getElementById("paused").style.display = "block";
                     document.getElementById("paused").innerText = "*paused (EDITOR ACTIVE)";
+                    Colors.editor_mouse = "#7af57a";
                 }
             },
             onkeyup: null,
@@ -304,7 +315,13 @@ function handleEventsOnInput() {
             },
             onkeyup: null,
         },
-
-
+        {
+            key: "Backspace",
+            onkeydown: (e) => {
+                if (!editor.active) return;
+                editor.removeMostRecentEntity(psystem);
+            },
+            onkeyup: null,
+        },
     ]);
 }

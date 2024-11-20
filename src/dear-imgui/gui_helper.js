@@ -114,6 +114,13 @@ const info = new GUIWindow(
     ],
 );
 
+const keybinds_window = new GUIWindow(
+    "w",
+    "keybind-window",
+    "keybind-header",
+    [],
+);
+
 const editor_window = new GUIWindow(
     "e",
     "editor-window",
@@ -142,6 +149,7 @@ export function initGUIWindows() {
     settings.init();
     profiling.init();
     info.init();
+    keybinds_window.init();
     editor_window.init();
 }
 
@@ -247,7 +255,7 @@ function updatePopupWindow(canvas, psystem) {
     if (body instanceof RigidBody) {
         updateFigure(1, "ID", info.id, "");
         updateFigure(2, "Type", "" + body.geometry.type, "");
-        updateFigure(3, "Mass", "" + body.mass.toFixed(num_dec), "kg");
+        updateFigure(3, "Mass", "" + Number(body.mass).toFixed(num_dec), "kg");
         updateFigure(4, "Inertia", "" + body.I.toFixed(num_dec), "kg * m^2");
         updateFigure(5, "Vel", "" + body.vel.magnitude().toFixed(num_dec), "m / s");
         updateFigure(6, "Omega", "" + Math.abs(body.omega).toFixed(num_dec), "rad / s");

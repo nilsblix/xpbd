@@ -7,6 +7,7 @@ html {
     --primary_yellow: rgb(255, 230, 67);
     --secondary_green: #7ee058;
     --secondary-grey: #505050;
+    --grey_text: rgba(180, 180, 180, 1);
 }
 
 .top-left-label {
@@ -17,6 +18,9 @@ html {
 
     margin-left: 3px;
     margin-top: 3px;
+
+    user-select: none;
+    cursor: help;
 }
 
 .c-window {
@@ -48,7 +52,7 @@ html {
     grid-template-rows: repeat(5, 20px);
     /* nums rows this element has - header */
     grid-template-columns: repeat(4, 1fr);
-    /* border: 1px solid aqua; */
+    align-self: flex-start;
 }
 
 .c-header {
@@ -78,26 +82,41 @@ html {
     /* border: 1px solid rgb(255, 225, 33); */
 }
 
-.c-label {
+
+.c-label-1 {
+    grid-column: span 1;
+}
+
+.c-label-2 {
+    grid-column: span 2;
+}
+
+.c-label-3 {
+    grid-column: span 3;
+}
+
+.c-label-4 {
     grid-column: span 4;
 }
 
-.c-label-left {
-    grid-column: span 2;
-}
-
-.c-label-right {
-    grid-column: span 2;
-    color: rgba(255, 255, 255, 0.7) !important;
-}
-
-.c-label-right-1 {
+.c-label-1g { /* G MEANS THAT THE TEXT IS GREY */
     grid-column: span 1;
+    color: var(--grey_text) !important;
 }
 
-.c-label-right-2 {
-    grid-column: span 1;
-    color: rgba(255, 255, 255, 0.7) !important;
+.c-label-2g {
+    grid-column: span 2;
+    color: var(--grey_text) !important;
+}
+
+.c-label-3g {
+    grid-column: span 3;
+    color: var(--grey_text) !important;
+}
+
+.c-label-4g {
+    grid-column: span 4;
+    color: var(--grey_text) !important;
 }
 
 .c-primary-header {
@@ -116,7 +135,6 @@ html {
     color: var(--secondary_green) !important;
 }
 
-/* CHAT */
 .c-checkbox {
     grid-column: span 1;
     justify-self: center;
@@ -149,6 +167,8 @@ html {
     width: 100%;
     height: 50%;
     background-color: var(--inactive_background_blue) !important;
+
+    cursor: ew-resize;
 }
 
 .c-slider:hover {
