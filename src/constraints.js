@@ -33,7 +33,7 @@ export class OffsetLinkConstraint {
         this.l0 = l0;
 
         this.lambda = null;
-        this.n = null;
+        this.n = Vector2.zero.clone();
         this.C = null;
     }
 
