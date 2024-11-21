@@ -224,6 +224,23 @@ export class SpringJoint {
         
     }
 
+    toJSON() {
+        return {
+            id1: this.id1,
+            r1: this.r1.toJSON(),
+            id2: this.id2,
+            r2: this.r2.toJSON(),
+            l0: this.l0,
+        };
+    }
+
+    static fromJSON(data) {
+        const r1 = Vector2.fromJSON(data.r1);
+        const r2 = Vector2.fromJSON(data.r2);
+        const joint = new SpringJoint(data.id1, r1, data.id2, r2);
+        return joint;
+    }
+
 }
 
 export class MouseSpring {

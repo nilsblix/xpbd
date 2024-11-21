@@ -121,6 +121,31 @@ export class OffsetLinkConstraint {
         Render.arc(a2, rad, false, true);
     }
 
+    toJSON() {
+        return {
+            alpha: this.alpha,
+            id1: this.id1,
+            r1: this.r1.toJSON(),
+            id2: this.id2,
+            r2: this.r2.toJSON(),
+            l0: this.l0,
+            lambda: this.lambda,
+            n: this.n.toJSON(),
+            C: this.C,
+        }
+    }
+
+    static fromJSON(data) {
+        const r1 = Vector2.fromJSON(data.r1);
+        const r2 = Vector2.fromJSON(data.r2);
+        const n = Vector2.fromJSON(data.n);
+        const joint = new OffsetLinkConstraint(data.alpha, data.id1, data.id2, r1, r2, data.l0);
+        joint.lambda = data.lambda;
+        joint.n = n;
+        joint.C = data.C;
+        return joint;
+    }
+
 }
 
 export class PrismaticYConstraint {
@@ -220,6 +245,28 @@ export class PrismaticYConstraint {
 
     }
 
+    toJSON() {
+        return {
+            alpha: this.alpha,
+            id: this.id,
+            r: this.r.toJSON(),
+            y0: this.y0,
+            lambda: this.lambda,
+            n: this.n.toJSON(),
+            C: this.C,
+        }
+    }
+
+    static fromJSON(data) {
+        const r = Vector2.fromJSON(data.r);
+        const n = Vector2.fromJSON(data.n);
+        const joint = new PrismaticYConstraint(data.alpha, data.id, r, data.y0);
+        joint.lambda = data.lambda;
+        joint.n = n;
+        joint.C = data.C;
+        return joint;
+    }
+
 }
 
 export class PrismaticPosConstraint {
@@ -308,6 +355,29 @@ export class PrismaticPosConstraint {
         Render.line(horizontal_1, horizontal_4);
 
     }
+
+    toJSON() {
+        return {
+            alpha: this.alpha,
+            id: this.id,
+            r: this.r.toJSON(),
+            p0: this.p0.toJSON(),
+            lambda: this.lambda,
+            n: this.n.toJSON(),
+            C: this.C,
+        }
+    }
+
+    static fromJSON(data) {
+        const r = Vector2.fromJSON(data.r);
+        const p0 = Vector2.fromJSON(data.p0);
+        const n = Vector2.fromJSON(data.n);
+        const joint = new PrismaticPosConstraint(data.alpha, data.id, r, p0);
+        joint.lambda = data.lambda;
+        joint.n = n;
+        joint.C = data.C;
+        return joint;
+    }
 }
 
 export class RevoluteJoint {
@@ -390,29 +460,30 @@ export class RevoluteJoint {
         Render.c.fillStyle = Colors.outlines;
         Render.arc(a, RenderConstants.revolute_joint_radius / 3, true, true);
 
-        // const vert_1 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.down));
-        // const vert_2 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.up));
+    }
 
-        // const hor_1 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.left));
-        // const hor_2 = Vector2.add(a, Vector2.scale(RenderConstants.revolute_joint_line_length / 2, Vector2.right));
+    toJSON() {
+        return {
+            alpha: this.alpha,
+            id1: this.id1,
+            r1: this.r1.toJSON(),
+            id2: this.id2,
+            r2: this.r2.toJSON(),
+            lambda: this.lambda,
+            n: this.n.toJSON(),
+            C: this.C,
+        }
+    }
 
-        // vert_1.set(Vector2.rotateAroundPoint(vert_1, body1.theta, a));
-        // vert_2.set(Vector2.rotateAroundPoint(vert_2, body1.theta, a));
-        // hor_1.set(Vector2.rotateAroundPoint(hor_1, body1.theta, a));
-        // hor_2.set(Vector2.rotateAroundPoint(hor_2, body1.theta, a));
-
-        // // Outer
-        // Render.c.lineWidth = (LineWidths.revolute_joint + LineWidths.lines_outlines) * Units.mult_s2c;
-        // Render.c.strokeStyle = Colors.outlines;
-        // Render.line(vert_1, vert_2);
-        // Render.line(hor_1, hor_2);
-
-        // // Inner
-        // Render.c.lineWidth = LineWidths.revolute_joint * Units.mult_s2c;
-        // Render.c.strokeStyle = Colors.revolute_joint;
-        // Render.line(vert_1, vert_2);
-        // Render.line(hor_1, hor_2);
-
+    static fromJSON(data) {
+        const r1 = Vector2.fromJSON(data.r1);
+        const r2 = Vector2.fromJSON(data.r2);
+        const n = Vector2.fromJSON(data.n);
+        const joint = new RevoluteJoint(data.alpha, data.id1, data.id2, r1, r2);
+        joint.lambda = data.lambda;
+        joint.n = n;
+        joint.C = data.C;
+        return joint;
     }
 
 }

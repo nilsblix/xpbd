@@ -19,16 +19,6 @@ export class PhysicsSystem {
 
     static simulating = false;
 
-    // saving;
-    static saves = [
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-    ]
-
     // constants
     static GRAVITY = 9.82;
     static ENERGY_DAMP_MU = 0E-1;
@@ -47,6 +37,59 @@ export class PhysicsSystem {
         this.force_generators.push(new Gravity());
         this.force_generators.push(new EnergyDamping());
 
+    }
+
+    set(copy) {
+        this.bodies = copy.bodies;
+        this.force_generators = copy.force_generators;
+        this.constraints = copy.constraints;
+    }
+
+    toJSON() {
+        return JSON.stringify({
+            bodies: this.bodies.map(body => body.toJSON()),
+            constraints: this.constraints.map(con => {
+                if (con.toJSON) {
+                    return { type: con.constructor.name, ...con.toJSON() }; // Stateful
+                } else {
+                    throw new Error(`Unknown constraint: ${con.constructor.name}`);
+                }
+            }),
+            force_generators: this.force_generators.map(fg => {
+                if (fg instanceof Gravity) {
+                    return { type: "Gravity" }; // Stateless
+                } else if (fg instanceof EnergyDamping) {
+                    return { type: "EnergyDamping" }; // Stateless
+                } else if (fg.toJSON) {
+                    return { type: "fg.constructor.name", ...fg.toJSON() }; // Stateful
+                } else {
+                    throw new Error(`Unknown force generator: ${fg.constructor.name}`);
+                }
+            }),
+        });
+    }
+
+    static fromJSON(jsonString) {
+        const data = JSON.parse(jsonString);
+        const system = new PhysicsSystem();
+        for (let body_data of data.bodies) {
+            system.bodies.push(RigidBody.fromJSON(body_data));
+        }
+        for (let fgen_data of data.force_generators) {
+            if (fgen_data.type == "SpringJoint")
+                system.force_generators.push(SpringJoint.fromJSON(fgen_data));
+        }
+        for (let con_data of data.constraints) {
+            if (con_data.type == "OffsetLinkConstraint")
+                system.constraints.push(OffsetLinkConstraint.fromJSON(con_data));
+            else if (con_data.type == "PrismaticYConstraint")
+                system.constraints.push(PrismaticYConstraint.fromJSON(con_data));
+            else if (con_data.type == "PrismaticPosConstraint")
+                system.constraints.push(PrismaticPosConstraint.fromJSON(con_data));
+            else if (con_data.type == "RevoluteJoint")
+                system.constraints.push(RevoluteJoint.fromJSON(con_data));
+        }
+        return system;
     }
 
     handleMouseSpring() {

@@ -156,4 +156,51 @@ export class RigidBody {
         return Vector2.scale(dir, mag * this.omega);
     }
 
+    toJSON() {
+        return {
+            pos: this.pos.toJSON(),
+            prev_pos: this.prev_pos.toJSON(),
+            vel: this.vel.toJSON(), 
+            force: this.force.toJSON(), 
+            mass: this.mass,
+            theta: this.theta,
+            prev_theta: this.prev_theta,
+            omega: this.omega,
+            tau: this.tau,
+            I: this.I,
+            color: this.color, 
+            geometry: {
+                type: this.geometry.type,
+                radius: this.geometry.radius,
+                width: this.geometry.width,
+                height: this.geometry.height,
+                local_vertices: this.geometry.local_vertices.map(v => v.toJSON()), 
+                world_vertices: this.geometry.world_vertices.map(v => v.toJSON()), 
+            }
+        };
+    }
+
+    static fromJSON(data) {
+        const pos = Vector2.fromJSON(data.pos);
+        const geometry = {
+            type: data.geometry.type,
+            radius: data.geometry.radius,
+            width: data.geometry.width,
+            height: data.geometry.height,
+            local_vertices: data.geometry.local_vertices.map(v => Vector2.fromJSON(v)),
+            world_vertices: data.geometry.world_vertices.map(v => Vector2.fromJSON(v)),
+        };
+        const body = new RigidBody(pos, data.mass, geometry);
+        body.prev_pos = Vector2.fromJSON(data.prev_pos);
+        body.vel = Vector2.fromJSON(data.vel);
+        body.force = Vector2.fromJSON(data.force);
+        body.theta = data.theta;
+        body.prev_theta = data.prev_theta;
+        body.omega = data.omega;
+        body.tau = data.tau;
+        body.I = data.I;
+        body.color = data.color;
+        return body;
+    }
+
 }

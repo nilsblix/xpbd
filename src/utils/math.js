@@ -228,4 +228,12 @@ export class Vector2 {
         return this.x == v.x && this.y == v.y;
     }
 
+    toJSON() {
+        return { x: this.x, y: this.y };
+    }
+
+    static fromJSON(data) {
+        return new Vector2(data.x, data.y);
+    }
+
 }

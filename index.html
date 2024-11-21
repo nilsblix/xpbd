@@ -146,7 +146,7 @@
         <div id="info-header" class="c-header">&nbsp;// INFO</div>
 
         <div class="c-content">
-            <div class="c-grid" style="grid-template-rows: repeat(18, 30px); width: 300px;">
+            <div class="c-grid" style="grid-template-rows: repeat(20, 30px); width: 300px;">
 
                 <div class="c-secondary-header">Rates:</div>
                 <div class="c-label-4">FR =&nbsp;<span id="info-framerate">0.0</span>&nbsp;Hz</div>
@@ -155,7 +155,7 @@
                 <div class="c-secondary-header">SUB STEPS:</div>
                 <div class="c-label-2">Less substeps --></div>
                 <div class="c-label-2">More natural energy loss</div>
-                <input id="info-sub-steps-slider" type="range" min="0" max="20" value="10" step="1" class="c-slider" />
+                <input id="info-sub-steps-slider" type="range" min="1" max="40" value="10" step="1" class="c-slider" />
                 <div id="info-sub-steps-value" class="c-slider-value">10</div>
 
                 <div class="c-secondary-header">Num: </div>
@@ -164,19 +164,27 @@
                 <div class="c-label-4">Constraints =&nbsp;<span id="info-num-constraints">0</span></div>
 
                 <div class="c-primary-header">Saved Scenes</div>
-                <div class="c-secondary-header">(blue means already active)</div>
+                <div class="c-tertiary-header">This saves with localStorage => Can save between sessions!</div>
+                <div class="c-secondary-header">Blue means saved. Press again to load</div>
+                <div class="c-tertiary-header">Load/Save &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Reset</div>
                 <input id="info-save-btn-1" type="button" class="c-button">
-                    <div class="c-label-3">Save 1 </div>
+                    <div class="c-label-2">Save 1 </div>
+                    <input id="info-reset-save-btn-1" type="button" class="c-button">
                 <input id="info-save-btn-2" type="button" class="c-button">
-                    <div class="c-label-3">Save 2 </div>
+                    <div class="c-label-2">Save 2 </div>
+                    <input id="info-reset-save-btn-2" type="button" class="c-button">
                 <input id="info-save-btn-3" type="button" class="c-button">
-                    <div class="c-label-3">Save 3 </div>
+                    <div class="c-label-2">Save 3 </div>
+                    <input id="info-reset-save-btn-3" type="button" class="c-button">
                 <input id="info-save-btn-4" type="button" class="c-button">
-                    <div class="c-label-3">Save 4 </div>
+                    <div class="c-label-2">Save 4 </div>
+                    <input id="info-reset-save-btn-4" type="button" class="c-button">
                 <input id="info-save-btn-5" type="button" class="c-button">
-                    <div class="c-label-3">Save 5 </div>
+                    <div class="c-label-2">Save 5 </div>
+                    <input id="info-reset-save-btn-5" type="button" class="c-button">
                 <input id="info-save-btn-6" type="button" class="c-button">
-                    <div class="c-label-3">Save 6 </div>
+                    <div class="c-label-2">Save 6 </div>
+                    <input id="info-reset-save-btn-6" type="button" class="c-button">
 
             </div>
         </div>

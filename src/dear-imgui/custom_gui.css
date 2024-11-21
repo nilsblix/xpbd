@@ -6,7 +6,7 @@ html {
     --hover_grey: #2b2b2b;
     --primary_yellow: rgb(255, 230, 67);
     --secondary_green: #7ee058;
-    --tertiary_orange: #db70c9;
+    --tertiary_pink: #db70c9;
     --secondary-grey: #505050;
     --grey_text: rgba(180, 180, 180, 1);
 }
@@ -137,7 +137,7 @@ html {
 }
 
 .c-tertiary-header {
-    color: var(--tertiary_orange) !important;
+    color: var(--tertiary_pink) !important;
 }
 
 .c-checkbox {
@@ -204,4 +204,7 @@ html {
 
     background-color: var(--inactive_background_blue) !important;
     border: 1px solid white !important;
+    border-radius: 50%;
+
+    cursor: pointer;
 }

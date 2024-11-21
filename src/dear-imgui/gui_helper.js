@@ -202,26 +202,45 @@ function initButtons() {
     const s5 = document.getElementById("info-save-btn-5");
     const s6 = document.getElementById("info-save-btn-6");
 
-    const handleSaveButton = (btn, i) => {
-        btn.style.setProperty("background-color", inactive_color, "important");
-        btn.onclick = () => {
-            if (PhysicsSystem.saves[i] === undefined) {
-                btn.style.setProperty("background-color", active_color, "important");
-                PhysicsSystem.saves[i] = _.cloneDeep(psystem);
+    const r1 = document.getElementById("info-reset-save-btn-1");
+    const r2 = document.getElementById("info-reset-save-btn-2");
+    const r3 = document.getElementById("info-reset-save-btn-3");
+    const r4 = document.getElementById("info-reset-save-btn-4");
+    const r5 = document.getElementById("info-reset-save-btn-5");
+    const r6 = document.getElementById("info-reset-save-btn-6");
+
+    const handleSaveLocation = (save_btn, reset_btn, ls_key) => {
+        const updateButtonColor = () => {
+            if (localStorage.getItem(ls_key)) {
+                save_btn.style.setProperty("background-color", active_color, "important");
             } else {
-                psystem.bodies = _.cloneDeep(PhysicsSystem.saves[i].bodies);
-                psystem.force_generators = _.cloneDeep(PhysicsSystem.saves[i].force_generators);
-                psystem.constraints = _.cloneDeep(PhysicsSystem.saves[i].constraints);
+                save_btn.style.setProperty("background-color", inactive_color, "important");
             }
-        }
+        };
+    
+        updateButtonColor();
+    
+        save_btn.onclick = () => {
+            if (!localStorage.getItem(ls_key)) {
+                localStorage.setItem(ls_key, psystem.toJSON());
+            } else {
+                psystem.set(PhysicsSystem.fromJSON(localStorage.getItem(ls_key)));
+            }
+            updateButtonColor(); 
+        };
+    
+        reset_btn.onclick = () => {
+            localStorage.removeItem(ls_key);
+            updateButtonColor(); 
+        };
     };
 
-    handleSaveButton(s1, 0);
-    handleSaveButton(s2, 1);
-    handleSaveButton(s3, 2);
-    handleSaveButton(s4, 3);
-    handleSaveButton(s5, 4);
-    handleSaveButton(s6, 5);
+    handleSaveLocation(s1, r1, "xpbd-physicsSystem-save-1");
+    handleSaveLocation(s2, r2, "xpbd-physicsSystem-save-2");
+    handleSaveLocation(s3, r3, "xpbd-physicsSystem-save-3");
+    handleSaveLocation(s4, r4, "xpbd-physicsSystem-save-4");
+    handleSaveLocation(s5, r5, "xpbd-physicsSystem-save-5");
+    handleSaveLocation(s6, r6, "xpbd-physicsSystem-save-6");
 
 }
 
