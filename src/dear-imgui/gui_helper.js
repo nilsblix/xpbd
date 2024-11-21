@@ -2,6 +2,7 @@ import { PhysicsSystem } from "../physics_system.js";
 import { editor } from "../editor.js";
 import { User } from "../user.js";
 import { RigidBody } from "../rigid_body.js";
+import { psystem } from "../engine.js";
 
 class GUIWindow {
     // slider args is in [{slider_id: x, value_id: x, num_decimals: x}, {etc}]
@@ -151,6 +152,8 @@ export function initGUIWindows() {
     info.init();
     keybinds_window.init();
     editor_window.init();
+
+    initButtons();
 }
 
 export function updateGUI(canvas, psystem) {
@@ -185,6 +188,40 @@ function updateDisplayedDebugs(psystem) {
     document.getElementById("info-num-rigidbodies").innerHTML = psystem.bodies.length;
     document.getElementById("info-num-force-generators").innerHTML = psystem.force_generators.length;
     document.getElementById("info-num-constraints").innerHTML = psystem.constraints.length;
+
+}
+
+function initButtons() {
+    const active_color = "#3d85e1";
+    const inactive_color = "#152c47";
+
+    const s1 = document.getElementById("info-save-btn-1");
+    const s2 = document.getElementById("info-save-btn-2");
+    const s3 = document.getElementById("info-save-btn-3");
+    const s4 = document.getElementById("info-save-btn-4");
+    const s5 = document.getElementById("info-save-btn-5");
+    const s6 = document.getElementById("info-save-btn-6");
+
+    const handleSaveButton = (btn, i) => {
+        btn.style.setProperty("background-color", inactive_color, "important");
+        btn.onclick = () => {
+            if (PhysicsSystem.saves[i] === undefined) {
+                btn.style.setProperty("background-color", active_color, "important");
+                PhysicsSystem.saves[i] = _.cloneDeep(psystem);
+            } else {
+                psystem.bodies = _.cloneDeep(PhysicsSystem.saves[i].bodies);
+                psystem.force_generators = _.cloneDeep(PhysicsSystem.saves[i].force_generators);
+                psystem.constraints = _.cloneDeep(PhysicsSystem.saves[i].constraints);
+            }
+        }
+    };
+
+    handleSaveButton(s1, 0);
+    handleSaveButton(s2, 1);
+    handleSaveButton(s3, 2);
+    handleSaveButton(s4, 3);
+    handleSaveButton(s5, 4);
+    handleSaveButton(s6, 5);
 
 }
 

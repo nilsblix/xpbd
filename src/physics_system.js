@@ -19,6 +19,16 @@ export class PhysicsSystem {
 
     static simulating = false;
 
+    // saving;
+    static saves = [
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+    ]
+
     // constants
     static GRAVITY = 9.82;
     static ENERGY_DAMP_MU = 0E-1;

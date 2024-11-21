@@ -8,13 +8,16 @@ import { Colors, LineWidths, RenderConstants } from "./settings/render_settings.
 import { PhysicsSystem } from "./physics_system.js";
 
 import { User } from "./user.js";
+
 import { updateGUI } from "./dear-imgui/gui_helper.js";
+import { initGUIWindows } from "./dear-imgui/gui_helper.js";
 
 import { setupScene } from "./demo_scenes.js";
 
 import { editor } from "./editor.js";
 
-var psystem;
+export var psystem;
+
 const physics_timer = new ScopedTimer(true, 5);
 const render_timer = new ScopedTimer(true, 5);
 const fps_calculator = new FPSCalculator();
@@ -22,6 +25,7 @@ const fps_calculator = new FPSCalculator();
 export function start(canvas) {
     psystem = new PhysicsSystem();
     handleEventsOnInput();
+    initGUIWindows(psystem);
     User.initMouseEventListeners(canvas);
 }
 
@@ -56,7 +60,7 @@ export function update(canvas) {
             editor.render(psystem);
         }
 
-        const mouse_pos = editor.snap_to_grid ? User.mouse.grid_sim_pos : User.mouse.sim_pos;
+        const mouse_pos = (editor.snap_to_grid && editor.active) ? User.mouse.grid_sim_pos : User.mouse.sim_pos;
         Render.c.fillStyle = Colors.editor_mouse;
         Render.c.strokeStyle = "#000000";
         Render.c.lineWidth = LineWidths.bodies * Units.mult_s2c;
@@ -209,12 +213,13 @@ function handleEventsOnInput() {
 
                 editor.spawning_rigidbody = true;
 
+                const m_pos = editor.snap_to_grid ? User.mouse.grid_sim_pos : User.mouse.sim_pos;
                 switch (editor.spawner.typeof_rigidbody) {
                     case "disc":
-                        editor.preliminary.disc.pos.set(User.mouse.sim_pos);
+                        editor.preliminary.disc.pos.set(m_pos);
                         break;
                     case "rect":
-                        editor.preliminary.rect.origin_pos.set(User.mouse.sim_pos);
+                        editor.preliminary.rect.origin_pos.set(m_pos);
                         break;
                 }
 
@@ -250,12 +255,14 @@ function handleEventsOnInput() {
                 if (!editor.active) return;
                 if (editor.spawning_joint) return;
 
-                const info = psystem.getRigidBodyInfoContainingPoint(User.mouse.sim_pos, true);
+                const m_pos = editor.snap_to_grid ? User.mouse.grid_sim_pos : User.mouse.sim_pos;
+                const info = psystem.getRigidBodyInfoContainingPoint(m_pos, true);
                 if (!info) return;
-                const r = psystem.bodies[info[0].id].worldToLocal(User.mouse.sim_pos);
+
+                const r = psystem.bodies[info[0].id].worldToLocal(m_pos);
                 let r2 = Vector2.zero.clone();
                 if (info.length > 1)
-                    r2.set(psystem.bodies[info[1].id].worldToLocal(User.mouse.sim_pos));
+                    r2.set(psystem.bodies[info[1].id].worldToLocal(m_pos));
 
                 switch (editor.spawner.typeof_joint) {
                     case "link":
@@ -289,12 +296,13 @@ function handleEventsOnInput() {
                 if (!editor.spawning_joint) return;
                 editor.spawning_joint = false;
 
-                const info = psystem.getRigidBodyInfoContainingPoint(User.mouse.sim_pos, true);
+                const m_pos = editor.snap_to_grid ? User.mouse.grid_sim_pos : User.mouse.sim_pos;
+                const info = psystem.getRigidBodyInfoContainingPoint(m_pos, true);
                 if (!info) return;
                 const id1 = editor.preliminary.two_body_joint.id1;
                 const r1 = editor.preliminary.two_body_joint.r1;
                 const id2 = info[0].id;
-                const r2 = psystem.bodies[info[0].id].worldToLocal(User.mouse.sim_pos);
+                const r2 = psystem.bodies[info[0].id].worldToLocal(m_pos);
 
                 switch (editor.spawner.typeof_joint) {
                     case "link":

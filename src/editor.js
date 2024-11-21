@@ -223,14 +223,15 @@ export const editor = {
             }
         }
         if (this.spawning_joint) {
+            const m_pos = this.snap_to_grid ? User.mouse.grid_sim_pos : User.mouse.sim_pos;
             switch (this.spawner.typeof_joint) {
                 case "link":
                     const link_pos_1 = psystem.bodies[this.preliminary.two_body_joint.id1].localToWorld(this.preliminary.two_body_joint.r1);
-                    Render.line(link_pos_1, User.mouse.sim_pos);
+                    Render.line(link_pos_1, m_pos);
                     break;
                 case "spring":
                     const spring_pos_1 = psystem.bodies[this.preliminary.two_body_joint.id1].localToWorld(this.preliminary.two_body_joint.r1);
-                    Render.line(spring_pos_1, User.mouse.sim_pos);
+                    Render.line(spring_pos_1, m_pos);
                     break;
             }
         }
