@@ -55,6 +55,7 @@
             position: absolute;
             display: block;
             width: 200px;
+            visibility: hidden;
 
             right: 0;
             bottom: 0;
@@ -281,7 +282,7 @@
                 <div class="c-secondary-header">Constraints: </div>
                 <div class="c-label-4">Joint Type:&nbsp;<span id="editor-joint-type">Link</span></div>
                 <div class="c-label-1">Compliance: </div>
-                <div class="c-label-3g">[μ] 0.0 => Infinite stiffness (default)</div>
+                <div class="c-label-3g">[μN / m] 0.0 => Infinite stiffness (default)</div>
                 <input id="editor-constraint-compliance-slider" type="range" min="0" max="0.5" value="0.0" step="0.005"
                     class="c-slider" />
                 <div id="editor-constraint-compliance-value" class="c-slider-value">0.0</div>

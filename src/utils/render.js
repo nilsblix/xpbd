@@ -6,9 +6,11 @@ export class Render {
     static TAU = 2 * Math.PI;
     static background = {
         background: "#0c0e11",
-        big_line_color: "#27282e",
-        big_line_sim_thickness: 0.01,
-        small_line_color: "#1b1c1f",
+        really_big_line_color: "#1c1d21",
+        really_big_line_sim_thickness: 0.008,
+        big_line_color: "#19191f",
+        big_line_sim_thickness: 0.005,
+        small_line_color: "#141417",
         small_line_sim_thickness: 0.005,
     };
 
@@ -118,7 +120,7 @@ export class Render {
         }
     
         Render.c.strokeStyle = Render.background.big_line_color;
-        Render.c.lineWidth = Units.mult_s2c * Render.background.small_line_sim_thickness;
+        Render.c.lineWidth = Units.mult_s2c * Render.background.big_line_sim_thickness;
     
         for (let i = 0; i < Units.NUM_LINES.x; i++) {
             const clip = i / Units.NUM_LINES.x;
@@ -127,6 +129,21 @@ export class Render {
         }
     
         for (let i = 0; i < Units.NUM_LINES.y; i++) {
+            const clip = i / Units.NUM_LINES.y;
+            const y = Units.HEIGHT * clip;
+            Render.line(new Vector2(0, y), new Vector2(Units.WIDTH, y));
+        }
+
+        Render.c.strokeStyle = Render.background.really_big_line_color;
+        Render.c.lineWidth = Units.mult_s2c * Render.background.really_big_line_color;
+
+        for (let i = 0; i < Units.NUM_LINES.x; i += 2) {
+            const clip = i / Units.NUM_LINES.x;
+            const x = Units.WIDTH * clip;
+            Render.line(new Vector2(x, 0), new Vector2(x, Units.HEIGHT));
+        }
+    
+        for (let i = 0; i < Units.NUM_LINES.y; i += 2) {
             const clip = i / Units.NUM_LINES.y;
             const y = Units.HEIGHT * clip;
             Render.line(new Vector2(0, y), new Vector2(Units.WIDTH, y));

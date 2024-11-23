@@ -145,6 +145,13 @@ function handleEventsOnInput() {
                     document.getElementById("editor-joint-type").innerHTML = "Prismatic-Y";
                     return;
                 }
+                if (!psystem.isDefault()) return;
+                PhysicsSystem.simulating = false;
+                psystem = new PhysicsSystem();
+                const paused = document.getElementById("paused");
+                paused.style.display = "block";
+
+                setupScene("soft square chain", psystem);
             },
             onkeyup: null,
         },
@@ -328,6 +335,13 @@ function handleEventsOnInput() {
             onkeydown: (e) => {
                 if (!editor.active) return;
                 editor.removeMostRecentEntity(psystem);
+            },
+            onkeyup: null,
+        },
+        {
+            key: "P",
+            onkeydown: (e) => {
+                console.log("'" + psystem.toJSON() + "'");
             },
             onkeyup: null,
         },

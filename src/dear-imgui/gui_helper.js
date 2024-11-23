@@ -286,7 +286,7 @@ function updatePopupWindow(canvas, psystem) {
     const popup = document.getElementById("popup-window");
 
     if (!infos) {
-        popup.style.display = "none";
+        popup.style.visibility = "hidden";
         return;
     }
 
@@ -294,7 +294,7 @@ function updatePopupWindow(canvas, psystem) {
 
     const rect = canvas.getBoundingClientRect();
 
-    popup.style.display = "none";
+    popup.style.visibility = "hidden";
 
     for (let i = 1; i <= 9; i++) { // 9 is max entry id
         document.getElementById("popup-entry-" + i).style.display = "none";
@@ -324,12 +324,12 @@ function updatePopupWindow(canvas, psystem) {
             updateFigure(9, "Height", body.geometry.height.toFixed(num_dec), "m");
         }
 
-        popup.style.display = "block";
+        popup.style.visibility = "visible";
 
         return;
 
     }
 
-    popup.style.display = "none";
+    popup.style.visibility = "hidden";
 
 }

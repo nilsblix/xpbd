@@ -12,7 +12,7 @@ export class Units {
 
     static canvas = { width: 0, height: 0 };
 
-    static NUM_LINES = { x: 20, y: 20 / this.RATIO };
+    static NUM_LINES = { x: 40, y: 40 / this.RATIO };
 
     /**
     * @param {HTMLCanvasElement} canvas 
