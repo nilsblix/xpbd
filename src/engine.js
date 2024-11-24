@@ -178,6 +178,14 @@ function handleEventsOnInput() {
             onkeyup: null,
         },
         {
+            key: "0",
+            onkeydown: (e) => {
+                document.getElementById("settings-gravity-slider").value = 0.0;
+                document.getElementById("settings-gravity-value").innerHTML = 0.0;
+            },
+            onkeyup: null,
+        },
+        {
             key: "x",
             onkeydown: (e) => {
                 editor.spawning_rigidbody = false;

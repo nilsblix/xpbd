@@ -196,11 +196,26 @@ export class Vector2 {
     }
 
     /**
+     * @returns {Vector2} The negated version of this, This hasnt been changed.
+     */
+    negated() {
+        return new Vector2(-this.x, -this.y);
+    }
+
+    /**
      * @returns {Vector2}
      */
     normalize() {
         const dist = this.magnitude();
         return this.scale(1 / dist);
+    }
+
+    /**
+     * 
+     * @returns {Vector2} The nornalized version if this. This has not been changed.
+     */
+    normalized() {
+        return Vector2.scale(1 / this.magnitude(), this);
     }
 
     /**
@@ -211,6 +226,18 @@ export class Vector2 {
      */
     static cross(a, b) {
         return a.x * b.y - a.y * b.x;
+    }
+
+    /**
+     * 
+     * @param {Vector2} a 
+     * @param {Vector2} b 
+     * @param {Vector2} c 
+     * @returns 
+     */
+    static tripleProduct(a, b, c) {
+        const cross = Vector2.cross(b, c);
+        return new Vector2(a.y * cross, a.x * cross);
     }
 
     /**

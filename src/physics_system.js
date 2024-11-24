@@ -1,10 +1,13 @@
 import { Vector2 } from "./utils/math.js";
+import { Render } from "./utils/render.js";
+import { Units } from "./utils/units.js";
 
-import {Gravity, EnergyDamping, MouseSpring, SpringJoint} from "./force_generators.js";
+import { Gravity, EnergyDamping, MouseSpring, SpringJoint } from "./force_generators.js";
 
 import { User } from "./user.js";
-import { OffsetLinkConstraint, PrismaticYConstraint, PrismaticPosConstraint,  RevoluteJoint } from "./constraints.js";
+import { OffsetLinkConstraint, PrismaticYConstraint, PrismaticPosConstraint, RevoluteJoint, CollisionConstraint } from "./constraints.js";
 import { RigidBody } from "./rigid_body.js";
+
 
 export class PhysicsSystem {
 
@@ -125,7 +128,7 @@ export class PhysicsSystem {
                 this.force_generators[i].apply(this.bodies);
             }
 
-            if (PhysicsSystem.mouse_spring.active) 
+            if (PhysicsSystem.mouse_spring.active)
                 PhysicsSystem.mouse_spring.apply(this.bodies);
 
             // integrate
@@ -181,6 +184,36 @@ export class PhysicsSystem {
         if (PhysicsSystem.mouse_spring.active)
             PhysicsSystem.mouse_spring.render(this.bodies);
 
+        if (this.bodies.length >= 2) {
+            const col = new CollisionConstraint(0, 1);
+            const simplex = col.GJK(this.bodies);
+            if (simplex) {
+                console.dir(simplex);
+                const offset = Vector2.scale(1 / 2, Units.DIMS);
+                // const offset = Vector2.zero.clone();
+                simplex.a = Vector2.add(simplex.a, offset);
+                simplex.b = Vector2.add(simplex.b, offset);
+                simplex.c = Vector2.add(simplex.c, offset);
+
+                Render.c.fillStyle = "#004400";
+                Render.arc(simplex.a, 0.1, false, true);
+                Render.c.fillStyle = "#00aa00";
+                Render.arc(simplex.b, 0.1, false, true);
+                Render.c.fillStyle = "#00ff00";
+                Render.arc(simplex.c, 0.1, false, true);
+
+                Render.c.strokeStyle = "#00ffff";
+
+                Render.line(simplex.a, simplex.b);
+                Render.line(simplex.b, simplex.c);
+                Render.line(simplex.a, simplex.c);
+
+                Render.c.fillStyle = "#ff0000";
+                Render.arc(offset, 0.04, false, true);
+            } else
+                console.log("NOT COLLIDING")
+        }
+
     }
 
     getSystemEnergy() {
@@ -212,7 +245,7 @@ export class PhysicsSystem {
      * @param {Vector2} r2 
      */
     addLinkJoint(alpha, id1, id2, r1, r2) {
-        this.constraints.push(new OffsetLinkConstraint(alpha, id1, id2, r1, r2, 
+        this.constraints.push(new OffsetLinkConstraint(alpha, id1, id2, r1, r2,
             Vector2.distance(Vector2.add(this.bodies[id1].pos, r1), Vector2.add(this.bodies[id2].pos, r2))));
     }
 
@@ -249,7 +282,7 @@ export class PhysicsSystem {
         for (let i = this.bodies.length - 1; i >= 0; i--) {
             const body = this.bodies[i];
             if (body.pointIsInside(point)) {
-                infos.push({id: i, body: body});
+                infos.push({ id: i, body: body });
                 if (!search_through_bodies || infos.length == 2) return infos;
             }
         }

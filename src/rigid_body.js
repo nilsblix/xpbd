@@ -144,6 +144,32 @@ export class RigidBody {
     }
 
     /**
+     * 
+     * @param {Vector2} dir Doesn't have to be of unit-length
+     * @returns {Vector2} The point with hightst dot product with dir
+     */
+    supportPoint(dir) {
+        const best = Vector2.zero.clone();
+        let best_dist = Number.MIN_VALUE;
+        
+        switch (this.geometry.type) {
+            case "disc":
+                const d = dir.normalized();
+                return Vector2.add(this.pos, Vector2.scale(this.geometry.radius, d));
+            case "rect":
+                for (let i = 0; i < this.geometry.world_vertices.length; i++) {
+                    const rotated_local = Vector2.sub(this.geometry.world_vertices[i], this.pos);
+                    const dist = dir.dot(rotated_local);
+                    if (dist > best_dist) {
+                        best_dist = dist;
+                        best.set(this.geometry.world_vertices[i]);
+                    }
+                }
+                return best;
+        }
+    }
+
+    /**
      * @param {Body} body
      * @param {Vector2} r 
      * @returns {Vector2} The velocity the offset vector r is experiencing

@@ -24,7 +24,7 @@ export class OffsetLinkConstraint {
      * @param {number} l0 rest length
      */
     constructor(alpha, id1, id2, r1, r2, l0) {
-        this.alpha = alpha; 
+        this.alpha = alpha;
 
         this.id1 = id1;
         this.r1 = r1;
@@ -65,13 +65,13 @@ export class OffsetLinkConstraint {
 
         const dC_dx1 = -2 * delta_a.x;
         const dC_dy1 = -2 * delta_a.y;
-        const dC_dtheta1 = 2 * ( ( this.r1.x * sin_1 + this.r1.y * cos_1) * delta_a.x
-                               + (-this.r1.x * cos_1 + this.r1.y * sin_1) * delta_a.y);
+        const dC_dtheta1 = 2 * ((this.r1.x * sin_1 + this.r1.y * cos_1) * delta_a.x
+            + (-this.r1.x * cos_1 + this.r1.y * sin_1) * delta_a.y);
 
         const dC_dx2 = 2 * delta_a.x;
         const dC_dy2 = 2 * delta_a.y;
-        const dC_dtheta2 = 2 * ( (-this.r2.x * sin_2 - this.r2.y * cos_2) * delta_a.x
-                               + ( this.r2.x * cos_2 - this.r2.y * sin_2) * delta_a.y);
+        const dC_dtheta2 = 2 * ((-this.r2.x * sin_2 - this.r2.y * cos_2) * delta_a.x
+            + (this.r2.x * cos_2 - this.r2.y * sin_2) * delta_a.y);
 
         const w_1 = (dC_dx1 * dC_dx1 + dC_dy1 * dC_dy1) / b1.mass + (dC_dtheta1 * dC_dtheta1) / b1.I;
         const w_2 = (dC_dx2 * dC_dx2 + dC_dy2 * dC_dy2) / b2.mass + (dC_dtheta2 * dC_dtheta2) / b2.I;
@@ -83,7 +83,7 @@ export class OffsetLinkConstraint {
 
         b1.pos = Vector2.add(b1.pos, delta_p1);
         b2.pos = Vector2.add(b2.pos, delta_p2);
-        
+
         b1.theta += this.lambda * dC_dtheta1 / b1.I;
         b2.theta += this.lambda * dC_dtheta2 / b2.I;
 
@@ -156,7 +156,7 @@ export class PrismaticYConstraint {
      * @param {*} y0 Target y-value
      */
     constructor(alpha, id, r, y0) {
-        this.alpha = alpha; 
+        this.alpha = alpha;
 
         this.id = id;
         this.r = r;
@@ -210,8 +210,8 @@ export class PrismaticYConstraint {
         const horizontal_middle = Vector2.add(applied, new Vector2(0.0, -2 * rad));
         const horizontal_1 = Vector2.add(horizontal_middle, new Vector2(- 4 * rad, 0.0));
         const horizontal_2 = Vector2.add(horizontal_middle, new Vector2(- 2 * rad, 0.0));
-        const horizontal_3 = Vector2.add(horizontal_middle, new Vector2(  2 * rad, 0.0));
-        const horizontal_4 = Vector2.add(horizontal_middle, new Vector2(  4 * rad, 0.0));
+        const horizontal_3 = Vector2.add(horizontal_middle, new Vector2(2 * rad, 0.0));
+        const horizontal_4 = Vector2.add(horizontal_middle, new Vector2(4 * rad, 0.0));
 
         Render.c.lineCap = "round";
         Render.c.strokeStyle = Colors.outlines;
@@ -227,8 +227,8 @@ export class PrismaticYConstraint {
         const fix = (LineWidths.fixed_constraints_lines);
 
         const small_rad = rad / 1.5;
-        const ball_1 = Vector2.add(horizontal_1, new Vector2(  small_rad, -small_rad - fix));
-        const ball_2 = Vector2.add(horizontal_2, new Vector2(  0.5 * small_rad, -small_rad - fix));
+        const ball_1 = Vector2.add(horizontal_1, new Vector2(small_rad, -small_rad - fix));
+        const ball_2 = Vector2.add(horizontal_2, new Vector2(0.5 * small_rad, -small_rad - fix));
         const ball_3 = Vector2.add(horizontal_middle, new Vector2(0.0, -small_rad - fix));
         const ball_4 = Vector2.add(horizontal_3, new Vector2(-  0.5 * small_rad, -small_rad - fix));
         const ball_5 = Vector2.add(horizontal_4, new Vector2(-  small_rad, -small_rad - fix));
@@ -277,7 +277,7 @@ export class PrismaticPosConstraint {
      * @param {Vector2} p0 Target position
      */
     constructor(alpha, id, r, p0) {
-        this.alpha = alpha; 
+        this.alpha = alpha;
 
         this.id = id;
         this.r = r;
@@ -305,7 +305,7 @@ export class PrismaticPosConstraint {
         const dC_dx = 2 * delta_x;
         const dC_dy = 2 * delta_y;
         const dC_dtheta = 2 * delta_x * (-this.r.x * Math.sin(b.theta) - this.r.y * Math.cos(b.theta))
-                        + 2 * delta_y * ( this.r.x * Math.cos(b.theta) - this.r.y * Math.sin(b.theta));
+            + 2 * delta_y * (this.r.x * Math.cos(b.theta) - this.r.y * Math.sin(b.theta));
 
         const w = (dC_dx * dC_dx + dC_dy * dC_dy) / b.mass + dC_dtheta * dC_dtheta / b.I;
 
@@ -343,7 +343,7 @@ export class PrismaticPosConstraint {
         const horizontal_1 = Vector2.add(horizontal_middle, new Vector2(- 4 * rad, 0.0));
         // const horizontal_2 = Vector2.add(horizontal_middle, new Vector2(- 2 * rad, 0.0));
         // const horizontal_3 = Vector2.add(horizontal_middle, new Vector2(  2 * rad, 0.0));
-        const horizontal_4 = Vector2.add(horizontal_middle, new Vector2(  4 * rad, 0.0));
+        const horizontal_4 = Vector2.add(horizontal_middle, new Vector2(4 * rad, 0.0));
 
         Render.c.lineCap = "round";
         Render.c.strokeStyle = Colors.outlines;
@@ -382,7 +382,7 @@ export class PrismaticPosConstraint {
 
 export class RevoluteJoint {
     constructor(alpha, id1, id2, r1, r2) {
-        this.alpha = alpha; 
+        this.alpha = alpha;
 
         this.id1 = id1;
         this.id2 = id2;
@@ -406,25 +406,25 @@ export class RevoluteJoint {
 
         const delta_x = a_p1.x - a_p2.x;
         const delta_y = a_p1.y - a_p2.y;
-        
+
         this.C = delta_x * delta_x + delta_y * delta_y;
         if (this.C < PhysicsSystem.EPS) return;
 
         const dC_dx1 = 2 * delta_x;
         const dC_dy1 = 2 * delta_y;
-        const dC_dtheta1 = 2*delta_x * (-Math.sin(body1.theta) * this.r1.x - Math.cos(body1.theta) * this.r1.y)
-                         + 2*delta_y * ( Math.cos(body1.theta) * this.r1.x - Math.sin(body1.theta) * this.r1.y);
+        const dC_dtheta1 = 2 * delta_x * (-Math.sin(body1.theta) * this.r1.x - Math.cos(body1.theta) * this.r1.y)
+            + 2 * delta_y * (Math.cos(body1.theta) * this.r1.x - Math.sin(body1.theta) * this.r1.y);
 
         const dC_dx2 = -2 * delta_x;
         const dC_dy2 = -2 * delta_y;
-        const dC_dtheta2 = 2*delta_x * ( Math.sin(body2.theta) * this.r2.x + Math.cos(body2.theta) * this.r2.y)
-                         + 2*delta_y * (-Math.cos(body2.theta) * this.r2.x + Math.sin(body2.theta) * this.r2.y);
+        const dC_dtheta2 = 2 * delta_x * (Math.sin(body2.theta) * this.r2.x + Math.cos(body2.theta) * this.r2.y)
+            + 2 * delta_y * (-Math.cos(body2.theta) * this.r2.x + Math.sin(body2.theta) * this.r2.y);
 
         this.n.set(new Vector2(dC_dx1, dC_dy1).normalize());
 
         const w_1 = (dC_dx1 * dC_dx1 + dC_dy1 * dC_dy1) / body1.mass + (dC_dtheta1 * dC_dtheta1) / body1.I;
         const w_2 = (dC_dx2 * dC_dx2 + dC_dy2 * dC_dy2) / body2.mass + (dC_dtheta2 * dC_dtheta2) / body2.I;
-        
+
         this.lambda = -this.C / (w_1 + w_2 + k);
 
         const delta_p1 = Vector2.scale(this.lambda / body1.mass, new Vector2(dC_dx1, dC_dy1));
@@ -432,7 +432,7 @@ export class RevoluteJoint {
 
         body1.pos.set(Vector2.add(body1.pos, delta_p1));
         body2.pos.set(Vector2.add(body2.pos, delta_p2));
-        
+
         body1.theta += this.lambda * dC_dtheta1 / body1.I;
         body2.theta += this.lambda * dC_dtheta2 / body2.I;
 
@@ -484,6 +484,140 @@ export class RevoluteJoint {
         joint.n = n;
         joint.C = data.C;
         return joint;
+    }
+
+}
+
+export class CollisionConstraint {
+    constructor(id1, id2) {
+
+        this.alpha = 0.0;
+
+        this.id1 = id1;
+        this.id2 = id2;
+
+        this.lambda_n = 0; // normal
+        this.lambda_t = 0; // tangent
+        this.n = Vector2.zero.clone();
+        this.C = 0;
+    }
+
+    /**
+     * 
+     * @param {*} bodies 
+     * @returns {boolean} If it might be colliding or not
+     */
+    broadPhase(bodies) {
+        // TODO
+        return true;
+    }
+
+    /**
+     * 
+     * @param {*} bodies 
+     * @returns {Object | false} Simplex of the minkowski difference. Used in extension EPA
+     */
+    GJK(bodies) {
+
+        const b1 = bodies[this.id1];
+        const b2 = bodies[this.id2];
+
+        const minkowski = (dir) => {
+            return Vector2.sub(b1.supportPoint(dir), b2.supportPoint(dir.negated()));
+        };
+
+        const tripleProduct = (u, v, w) => {
+            const uw = u.x * w.x + u.y * w.y;
+            const vw = v.x * w.x + v.y * w.y;
+            return new Vector2(v.x * uw - u.x * vw, v.y * uw - u.y * vw);
+        }
+
+        let a = minkowski(Vector2.right.clone());
+        let v = a.negated();
+
+        let b = minkowski(v); 
+        if (b.dot(v) <= 0.0) return false;
+
+        let ab = Vector2.sub(b, a);
+        v = tripleProduct(ab, a.negated(), ab);
+
+        for (;;) {
+            let c = minkowski(v);
+            if (c.dot(v) <= 0.0) return false;
+
+            let c0 = c.negated();
+            let cb = Vector2.sub(b, c);
+            let ca = Vector2.sub(a, c);
+
+            let cbPerp = tripleProduct(ca, cb, cb);
+            let caPerp = tripleProduct(cb, ca, ca);
+
+            if (caPerp.dot(c0) > 0.0) {
+                b.set(c);
+                v.set(caPerp);
+            } else if (cbPerp.dot(c0) > 0.0) {
+                a.set(c);
+                v.set(cbPerp);
+            } else return {a: a, b: b, c: c};
+        }
+
+        // const simplex = { a: Vector2.zero.clone(), b: Vector2.zero.clone(), c: Vector2.zero.clone() };
+
+        // const dir = Vector2.right.clone();
+        // simplex.c.set(minkowski(dir));
+
+        // dir.set(simplex.c.negated());
+        // simplex.b.set(minkowski(dir));
+
+        // if (dir.dot(simplex.b.negated()) > 0.0)
+        //     return false;
+
+        // const bc = Vector2.sub(simplex.c, simplex.b);
+
+        // dir.set(new Vector2(- bc.y, bc.x));
+        // if (dir.dot(simplex.b.negated()) < 0)
+        //     dir.negate();
+        // simplex.a.set(minkowski(dir));
+
+        // if (dir.dot(simplex.a.negated()) > 0.0)
+        //     return false;
+
+        // for (; ;) {
+        //     const ao = simplex.a.negated();
+        //     const ab = Vector2.sub(simplex.b, simplex.a);
+        //     const ac = Vector2.sub(simplex.c, simplex.a);
+
+        //     // const ab_n = Vector2.tripleProduct(ac, ab, ab);
+        //     const ab_n = new Vector2(-ab.y, ab.x);
+        //     if (ao.dot(ab_n) > 0.0)
+        //         ab_n.negate();
+
+        //     // const ac_n = Vector2.tripleProduct(ab, ac, ac);
+        //     const ac_n = new Vector2(-ac.y, ac.x);
+        //     if (ao.dot(ac_n) > 0.0)
+        //         ac_n.negate();
+
+        //     if (ao.dot(ab_n) > 0.0) {
+        //         // drop c and continue
+        //         simplex.c.set(simplex.b.clone());
+        //         simplex.b.set(simplex.a.clone());
+        //         simplex.a.set(minkowski(ab_n));
+        //         if (ab_n.dot(simplex.a.negated()) > 0.0)
+        //             return false;
+        //     } else if (ao.dot(ac_n) > 0.0) {
+        //         // drop b and continue
+        //         simplex.b.set(simplex.a.clone());
+        //         simplex.a.set(minkowski(ac_n));
+        //         if (ac_n.dot(simplex.a.negated()) > 0.0)
+        //             return false;
+        //     } else {
+        //         break;
+        //     }
+
+        // }
+
+        // return simplex;
+
     }
 
 }
