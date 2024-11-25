@@ -123,6 +123,8 @@ export class PhysicsSystem {
 
         for (let s = 0; s < PhysicsSystem.sub_steps; s++) {
 
+            const col = new CollisionConstraint(0, 1);
+
             // forces
             for (let i = 0; i < this.force_generators.length; i++) {
                 this.force_generators[i].apply(this.bodies);
@@ -155,7 +157,8 @@ export class PhysicsSystem {
             for (let i = 0; i < this.constraints.length; i++) {
                 this.constraints[i].solve(this.bodies);
             }
-
+            col.solve(this.bodies);
+            
             // update velocities
             for (let i = 0; i < this.bodies.length; i++) {
                 const a = this.bodies[i];

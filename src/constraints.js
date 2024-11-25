@@ -502,6 +502,37 @@ export class CollisionConstraint {
         this.C = 0;
     }
 
+    solve(bodies) {
+        this.C = 0;
+
+        const simplex = this.GJK(bodies);
+        if (!simplex) return;
+        const {p, q, dist, n} = this.EPA(bodies, simplex);
+
+        const b1 = bodies[this.id1];
+        const b2 = bodies[this.id2];
+
+        const p1 = b2.supportPoint(n.negated());
+        const r1 = b1.worldToLocal(p1);
+        // const p1_prev = Vector2.add(b1.prev_pos, Vector2.rotateByAngle(r1, b1.prev_theta));
+
+        const p2 = b1.supportPoint(n);
+        const r2 = b2.worldToLocal(p2);
+        // const p2_prev = Vector2.add(b2.prev_pos, Vector2.rotateByAngle(r2, b2.prev_theta));
+
+        const d = Vector2.sub(p2, p1).dot(n);
+
+        console.dir(d);
+
+        if (d <= 0) return;
+        console.log("solved collision");
+
+        this.C = d;
+        b1.pos = Vector2.sub(b1.pos, Vector2.scale(1/2 * d, n));
+        b2.pos = Vector2.add(b2.pos, Vector2.scale(1/2 * d, n));
+
+    }   
+
     /**
      * 
      * @param {*} bodies 
