@@ -241,6 +241,19 @@ export class Vector2 {
     }
 
     /**
+     * 
+     * @param {Vector2} a 
+     * @param {Vector2} b 
+     * @returns {number} The distance between the line a --> b and this.
+     */
+    distanceToLine(a, b) {
+        const t_no_limit = - Vector2.sub(a, this).dot(Vector2.sub(b, a)) / Vector2.sub(b, a).sqr_magnitude();
+        const t = Math.max(0, Math.min(1, t_no_limit));
+        const d = (a.x - this.x + t * (b.x - a.x)) ** 2 + (a.y - this.y + t * (b.y - a.y)) ** 2;
+        return Math.sqrt(d);
+    }
+
+    /**
      * @returns {string}
      */
     toString() {

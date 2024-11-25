@@ -512,13 +512,16 @@ export class CollisionConstraint {
         return true;
     }
 
+    minkowski(body1, body2, dir) {
+        return Vector2.sub(body1.supportPoint(dir), body2.supportPoint(dir.negated()));
+    }
+
     /**
      * 
      * @param {*} bodies 
      * @returns {Object | false} Simplex of the minkowski difference. Used in extension EPA
      */
     GJK(bodies) {
-
         const b1 = bodies[this.id1];
         const b2 = bodies[this.id2];
 
@@ -560,64 +563,43 @@ export class CollisionConstraint {
                 v.set(cbPerp);
             } else return {a: a, b: b, c: c};
         }
+    }
 
-        // const simplex = { a: Vector2.zero.clone(), b: Vector2.zero.clone(), c: Vector2.zero.clone() };
+    getClosestEdge(polytope) {
+        const tripleProduct = (u, v, w) => {
+            const uw = u.x * w.x + u.y * w.y;
+            const vw = v.x * w.x + v.y * w.y;
+            return new Vector2(v.x * uw - u.x * vw, v.y * uw - u.y * vw);
+        }
 
-        // const dir = Vector2.right.clone();
-        // simplex.c.set(minkowski(dir));
+        let min_d = Number.POSITIVE_INFINITY;
+        let closest;
+        for (let i = 0; i < polytope.length; i++) {
+            const [p, q] = [polytope[i], polytope[(i + 1) % polytope.length]];
+            const qp = Vector2.sub(q, p);
+            const n = tripleProduct(qp, p, qp).normalized();
+            const dist = n.dot(p);
+            if (dist < min_d) [min_d, closest] = [dist, {dist, i, p, q, n}];
+        }
+        return closest;
+    }   
 
-        // dir.set(simplex.c.negated());
-        // simplex.b.set(minkowski(dir));
+    EPA(bodies, simplex) {
+        const b1 = bodies[this.id1];
+        const b2 = bodies[this.id2];
 
-        // if (dir.dot(simplex.b.negated()) > 0.0)
-        //     return false;
+        const minkowski = (dir) => {
+            return Vector2.sub(b1.supportPoint(dir), b2.supportPoint(dir.negated()));
+        };
 
-        // const bc = Vector2.sub(simplex.c, simplex.b);
+        const polytope = [simplex.a, simplex.b, simplex.c];
 
-        // dir.set(new Vector2(- bc.y, bc.x));
-        // if (dir.dot(simplex.b.negated()) < 0)
-        //     dir.negate();
-        // simplex.a.set(minkowski(dir));
-
-        // if (dir.dot(simplex.a.negated()) > 0.0)
-        //     return false;
-
-        // for (; ;) {
-        //     const ao = simplex.a.negated();
-        //     const ab = Vector2.sub(simplex.b, simplex.a);
-        //     const ac = Vector2.sub(simplex.c, simplex.a);
-
-        //     // const ab_n = Vector2.tripleProduct(ac, ab, ab);
-        //     const ab_n = new Vector2(-ab.y, ab.x);
-        //     if (ao.dot(ab_n) > 0.0)
-        //         ab_n.negate();
-
-        //     // const ac_n = Vector2.tripleProduct(ab, ac, ac);
-        //     const ac_n = new Vector2(-ac.y, ac.x);
-        //     if (ao.dot(ac_n) > 0.0)
-        //         ac_n.negate();
-
-        //     if (ao.dot(ab_n) > 0.0) {
-        //         // drop c and continue
-        //         simplex.c.set(simplex.b.clone());
-        //         simplex.b.set(simplex.a.clone());
-        //         simplex.a.set(minkowski(ab_n));
-        //         if (ab_n.dot(simplex.a.negated()) > 0.0)
-        //             return false;
-        //     } else if (ao.dot(ac_n) > 0.0) {
-        //         // drop b and continue
-        //         simplex.b.set(simplex.a.clone());
-        //         simplex.a.set(minkowski(ac_n));
-        //         if (ac_n.dot(simplex.a.negated()) > 0.0)
-        //             return false;
-        //     } else {
-        //         break;
-        //     }
-
-        // }
-
-        // return simplex;
-
+        for (;;) {
+            const {dist, i, p, q, n} = this.getClosestEdge(polytope);
+            const r = minkowski(n);
+            if (Math.abs(n.dot(r) - dist) < 0.001) return {p, q, dist, n};
+            polytope.splice(i + 1, 0, r);
+        }
     }
 
 }

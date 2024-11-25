@@ -188,9 +188,29 @@ export class PhysicsSystem {
             const col = new CollisionConstraint(0, 1);
             const simplex = col.GJK(this.bodies);
             if (simplex) {
-                console.dir(simplex);
                 const offset = Vector2.scale(1 / 2, Units.DIMS);
-                // const offset = Vector2.zero.clone();
+
+                for (let i = 0; i < 40; i++) {
+                    const angle = i * 2 * Math.PI / 40;
+                    const dir = Vector2.right.clone().rotateByAngle(angle);
+                    const id1 = col.id1;
+                    const id2 = col.id2;
+                    const support = col.minkowski(this.bodies[id1], this.bodies[id2], dir);
+                    Render.c.fillStyle = "#ffffff";
+                    Render.arc(Vector2.add(support, offset), 0.07, false, true);
+                }
+
+                let {p, q, dist, n} = col.EPA(this.bodies, simplex);
+                Render.c.strokeStyle = "#ff0000";
+                p = Vector2.add(p, offset);
+                q = Vector2.add(q, offset);
+                Render.c.lineWidth = 15;
+
+                Render.line(p, q);
+                const n_st = Vector2.scale(1/2, Vector2.add(p, q));
+                const n_et = Vector2.add(n_st, Vector2.scale(dist, n));
+                Render.line(n_st, n_et);
+
                 simplex.a = Vector2.add(simplex.a, offset);
                 simplex.b = Vector2.add(simplex.b, offset);
                 simplex.c = Vector2.add(simplex.c, offset);
@@ -204,9 +224,11 @@ export class PhysicsSystem {
 
                 Render.c.strokeStyle = "#00ffff";
 
+                Render.c.lineWidth = 8;
                 Render.line(simplex.a, simplex.b);
                 Render.line(simplex.b, simplex.c);
                 Render.line(simplex.a, simplex.c);
+
 
                 Render.c.fillStyle = "#ff0000";
                 Render.arc(offset, 0.04, false, true);
