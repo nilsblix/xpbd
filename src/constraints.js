@@ -503,35 +503,174 @@ export class CollisionConstraint {
     }
 
     solve(bodies) {
-        this.C = 0;
-
-        const simplex = this.GJK(bodies);
-        if (!simplex) return;
-        const {p, q, dist, n} = this.EPA(bodies, simplex);
-
         const b1 = bodies[this.id1];
         const b2 = bodies[this.id2];
 
-        const p1 = b2.supportPoint(n.negated());
+        const simplex = this.gjk(bodies);
+        if (!simplex) return;
+        const {penetrationDepth, normal, contactA, contactB} = this.epa(bodies, simplex);
+
+        const p1 = contactA.clone();
+        const p2 = contactB.clone();
+
         const r1 = b1.worldToLocal(p1);
-        // const p1_prev = Vector2.add(b1.prev_pos, Vector2.rotateByAngle(r1, b1.prev_theta));
-
-        const p2 = b1.supportPoint(n);
         const r2 = b2.worldToLocal(p2);
-        // const p2_prev = Vector2.add(b2.prev_pos, Vector2.rotateByAngle(r2, b2.prev_theta));
 
-        const d = Vector2.sub(p2, p1).dot(n);
-
-        console.dir(d);
-
-        if (d <= 0) return;
-        console.log("solved collision");
-
+        const d = Vector2.sub(p1, p2).dot(normal);
         this.C = d;
-        b1.pos = Vector2.sub(b1.pos, Vector2.scale(1/2 * d, n));
-        b2.pos = Vector2.add(b2.pos, Vector2.scale(1/2 * d, n));
 
-    }   
+        // const dC_dx1 = Vector2.right.clone().dot(normal);
+        // const dC_dy1 = Vector2.up.clone().dot(normal);
+        const dC_dtheta1 =   new Vector2( - r1.x * Math.sin(b1.theta) - r1.y * Math.cos(b1.theta),
+                                            r1.x * Math.cos(b1.theta) - r1.y * Math.sin(b1.theta)).dot(normal);
+
+        // const dC_dx2 = Vector2.left.clone().dot(normal);
+        // const dC_dy2 = Vector2.down.clone().dot(normal);
+        const dC_dtheta2 = new Vector2( - r2.x * Math.sin(b2.theta) - r2.y * Math.cos(b2.theta),
+                                            r2.x * Math.cos(b2.theta) - r2.y * Math.sin(b2.theta)).dot(normal);
+
+        const w_1 = 1 / b1.mass + (dC_dtheta1 * dC_dtheta1) / b1.I;
+        const w_2 = 1 / b2.mass + (dC_dtheta2 * dC_dtheta2) / b2.I;
+
+        const delta_lambda_n = - this.C / (w_1 + w_2);
+        this.lambda_n += delta_lambda_n;
+
+        const delta_x1 = Vector2.scale(delta_lambda_n / b1.mass, normal);
+        const delta_x2 = Vector2.scale(delta_lambda_n / b2.mass, normal.negated());
+
+        b1.pos = Vector2.add(b1.pos, delta_x1);
+        b2.pos = Vector2.add(b2.pos, delta_x2);
+
+        b1.theta += delta_lambda_n * dC_dtheta1 / b1.I;
+        b2.theta += delta_lambda_n * dC_dtheta2 / b2.I;
+
+        // console.log(penetrationDepth);
+
+        Render.c.fillStyle = "#00ff00";
+        Render.arc(p1, 0.08, false, true);
+        Render.c.fillStyle = "#ff0000";
+        Render.arc(p2, 0.08, false, true);
+
+        // Render.c.strokeStyle = "#ff00ff";
+        // Render.c.lineWidth = 7;
+        // const offset = Vector2.scale(1/2, Units.DIMS);
+        // Render.line(offset, Vector2.add(offset, normal));
+
+    }
+
+    support(b1, b2, dir) {
+        const support_a = b1.supportPoint(dir);
+        const support_b = b2.supportPoint(dir.negated());
+        const minkowski = Vector2.sub(support_a, support_b);
+        return { minkowskiPoint: minkowski, supportA: support_a, supportB: support_b };
+    }
+
+    tripleProduct(u, v, w) {
+        const uw = u.x * w.x + u.y * w.y;
+        const vw = v.x * w.x + v.y * w.y;
+        return new Vector2(v.x * uw - u.x * vw, v.y * uw - u.y * vw);
+    }
+
+    gjk(bodies) {
+        const bo1 = bodies[this.id1];
+        const bo2 = bodies[this.id2];
+
+        let { minkowskiPoint: a, supportA: a1, supportB: a2 } = this.support(bo1, bo2, Vector2.right.clone());
+        let v = a.negated();
+
+        let { minkowskiPoint: b, supportA: b1, supportB: b2 } = this.support(bo1, bo2, v);
+        if (b.dot(v) <= 0.0) return false;
+
+        let ab = Vector2.sub(b, a);
+        v = this.tripleProduct(ab, a.negated(), ab);
+
+        for (; ;) {
+            let { minkowskiPoint: c, supportA: c1, supportB: c2 } = this.support(bo1, bo2, v);
+            if (c.dot(v) <= 0.0) return false;
+
+            let c0 = c.negated();
+            let cb = Vector2.sub(b, c);
+            let ca = Vector2.sub(a, c);
+
+            let cbPerp = this.tripleProduct(ca, cb, cb);
+            let caPerp = this.tripleProduct(cb, ca, ca);
+
+            if (caPerp.dot(c0) > 0.0) {
+                b = c;
+                b1 = c1;
+                b2 = c2;
+                v = caPerp;
+            } else if (cbPerp.dot(c0) > 0.0) {
+                a = c;
+                a1 = c1;
+                a2 = c2;
+                v = cbPerp;
+            } else {
+                return {
+                    a: { point: a, supportA: a1, supportB: a2 },
+                    b: { point: b, supportA: b1, supportB: b2 },
+                    c: { point: c, supportA: c1, supportB: c2 },
+                };
+            }
+        }
+    }
+
+    /**
+    * Get the closest edge of the polytope in the EPA algorithm
+    * @param {Array} polytope - List of vertices in the polytope
+    * @returns {Object} The closest edge and its details
+    */
+    getClosestEdge(polytope) {
+        let min_d = Number.POSITIVE_INFINITY;
+        let closest;
+        for (let i = 0; i < polytope.length; i++) {
+            const [p, q] = [polytope[i], polytope[(i + 1) % polytope.length]];
+            const qp = Vector2.sub(q.point, p.point);
+            const n = this.tripleProduct(qp, p.point, qp).normalized();
+            const dist = n.dot(p.point);
+            if (dist < min_d) {
+                min_d = dist;
+                closest = { dist, i, p, q, n };
+            }
+        }
+        return closest;
+    }
+
+    /**
+    * EPA Algorithm
+    * Finds the penetration depth, normal, and contact points for colliding bodies.
+    * @param {*} bodies - Array of bodies in the simulation
+    * @param {Object} simplex - Simplex generated by the GJK algorithm
+    * @returns Contact details including depth, normal, and points on each body
+    */
+    epa(bodies, simplex) {
+        const b1 = bodies[this.id1];
+        const b2 = bodies[this.id2];
+
+        const polytope = [
+            { point: simplex.a.point, supportA: simplex.a.supportA, supportB: simplex.a.supportB },
+            { point: simplex.b.point, supportA: simplex.b.supportA, supportB: simplex.b.supportB },
+            { point: simplex.c.point, supportA: simplex.c.supportA, supportB: simplex.c.supportB },
+        ];
+
+        for (; ;) {
+            const { dist, i, p, q, n } = this.getClosestEdge(polytope);
+
+            const { minkowskiPoint: r, supportA: r1, supportB: r2 } = this.support(b1, b2, n);
+
+            if (Math.abs(n.dot(r) - dist) < 0.001) {
+                return {
+                    penetrationDepth: dist,
+                    normal: n,
+                    contactA: p.supportA, // Contact point on body 1
+                    contactB: p.supportB  // Contact point on body 2
+                };
+            }
+
+            // Insert new vertex into polytope
+            polytope.splice(i + 1, 0, { point: r, supportA: r1, supportB: r2 });
+        }
+    }
 
     /**
      * 
@@ -541,96 +680,6 @@ export class CollisionConstraint {
     broadPhase(bodies) {
         // TODO
         return true;
-    }
-
-    minkowski(body1, body2, dir) {
-        return Vector2.sub(body1.supportPoint(dir), body2.supportPoint(dir.negated()));
-    }
-
-    /**
-     * 
-     * @param {*} bodies 
-     * @returns {Object | false} Simplex of the minkowski difference. Used in extension EPA
-     */
-    GJK(bodies) {
-        const b1 = bodies[this.id1];
-        const b2 = bodies[this.id2];
-
-        const minkowski = (dir) => {
-            return Vector2.sub(b1.supportPoint(dir), b2.supportPoint(dir.negated()));
-        };
-
-        const tripleProduct = (u, v, w) => {
-            const uw = u.x * w.x + u.y * w.y;
-            const vw = v.x * w.x + v.y * w.y;
-            return new Vector2(v.x * uw - u.x * vw, v.y * uw - u.y * vw);
-        }
-
-        let a = minkowski(Vector2.right.clone());
-        let v = a.negated();
-
-        let b = minkowski(v); 
-        if (b.dot(v) <= 0.0) return false;
-
-        let ab = Vector2.sub(b, a);
-        v = tripleProduct(ab, a.negated(), ab);
-
-        for (;;) {
-            let c = minkowski(v);
-            if (c.dot(v) <= 0.0) return false;
-
-            let c0 = c.negated();
-            let cb = Vector2.sub(b, c);
-            let ca = Vector2.sub(a, c);
-
-            let cbPerp = tripleProduct(ca, cb, cb);
-            let caPerp = tripleProduct(cb, ca, ca);
-
-            if (caPerp.dot(c0) > 0.0) {
-                b.set(c);
-                v.set(caPerp);
-            } else if (cbPerp.dot(c0) > 0.0) {
-                a.set(c);
-                v.set(cbPerp);
-            } else return {a: a, b: b, c: c};
-        }
-    }
-
-    getClosestEdge(polytope) {
-        const tripleProduct = (u, v, w) => {
-            const uw = u.x * w.x + u.y * w.y;
-            const vw = v.x * w.x + v.y * w.y;
-            return new Vector2(v.x * uw - u.x * vw, v.y * uw - u.y * vw);
-        }
-
-        let min_d = Number.POSITIVE_INFINITY;
-        let closest;
-        for (let i = 0; i < polytope.length; i++) {
-            const [p, q] = [polytope[i], polytope[(i + 1) % polytope.length]];
-            const qp = Vector2.sub(q, p);
-            const n = tripleProduct(qp, p, qp).normalized();
-            const dist = n.dot(p);
-            if (dist < min_d) [min_d, closest] = [dist, {dist, i, p, q, n}];
-        }
-        return closest;
-    }   
-
-    EPA(bodies, simplex) {
-        const b1 = bodies[this.id1];
-        const b2 = bodies[this.id2];
-
-        const minkowski = (dir) => {
-            return Vector2.sub(b1.supportPoint(dir), b2.supportPoint(dir.negated()));
-        };
-
-        const polytope = [simplex.a, simplex.b, simplex.c];
-
-        for (;;) {
-            const {dist, i, p, q, n} = this.getClosestEdge(polytope);
-            const r = minkowski(n);
-            if (Math.abs(n.dot(r) - dist) < 0.001) return {p, q, dist, n};
-            polytope.splice(i + 1, 0, r);
-        }
     }
 
 }

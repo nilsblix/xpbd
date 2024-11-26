@@ -207,7 +207,8 @@ export class Vector2 {
      */
     normalize() {
         const dist = this.magnitude();
-        return this.scale(1 / dist);
+        this.x /= dist;
+        this.y /= dist;
     }
 
     /**

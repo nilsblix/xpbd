@@ -46,12 +46,6 @@ export function update(canvas) {
 
     PhysicsSystem.dt = fps_calculator.dt;
 
-    physics_timer.measure(() => psystem.process());
-    PhysicsSystem.pdt = physics_timer.dt;
-
-    PhysicsSystem.energy = psystem.getSystemEnergy();
-    PhysicsSystem.c_eval = psystem.getSumOfConstraints();
-
     render_timer.measure(() => {
         Render.c.clearRect(0, 0, canvas.width, canvas.height);
         Render.renderBackground();
@@ -68,6 +62,12 @@ export function update(canvas) {
 
     });
     PhysicsSystem.rdt = render_timer.dt;
+
+    physics_timer.measure(() => psystem.process());
+    PhysicsSystem.pdt = physics_timer.dt;
+
+    PhysicsSystem.energy = psystem.getSystemEnergy();
+    PhysicsSystem.c_eval = psystem.getSumOfConstraints();
 
     requestAnimationFrame(() => update(canvas));
 }

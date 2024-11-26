@@ -148,8 +148,8 @@ export class RigidBody {
      * @param {Vector2} dir Doesn't have to be of unit-length
      * @returns {Vector2} The point with hightst dot product with dir
      */
-    supportPoint(dir) {
-        const best = Vector2.zero.clone();
+    supportPoint(dir, sum_vertices = false) {
+        let best = Vector2.zero.clone();
         let best_dist = Number.MIN_VALUE;
         
         switch (this.geometry.type) {
@@ -163,6 +163,8 @@ export class RigidBody {
                     if (dist > best_dist) {
                         best_dist = dist;
                         best.set(this.geometry.world_vertices[i]);
+                    } else if (sum_vertices && Math.abs(dist -best_dist) < 0.05) {
+                        best = Vector2.scale(1/2, Vector2.add(best, this.geometry.world_vertices[i]));
                     }
                 }
                 return best;
